@@ -3,7 +3,6 @@ package vaadincrm.view;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
-import org.springframework.stereotype.Component;
 import vaadincrm.DashboardNavigator;
 
 public class MainView extends HorizontalLayout {

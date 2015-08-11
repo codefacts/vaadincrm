@@ -8,7 +8,6 @@ import vaadincrm.view.dashboard.DashboardView;
  * Created by someone on 28-Jul-2015.
  */
 public enum ViewType {
-    REPORTS("reports", "reports", "Reports", null, DashboardView.class, true),
     DASHBOARD("index", "dashboard", "Dashboard", null, DashboardView.class, true);
 
     public final String value;

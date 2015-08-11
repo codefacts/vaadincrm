@@ -16,4 +16,5 @@ final public class Events {
     public static final String CREATE_NEW_AREA_COORDINATOR = "CREATE_NEW_AREA_COORDINATOR";
     public static final String CREATE_NEW_BR_SUPERVISOR = "CREATE_NEW_BR_SUPERVISOR";
     public static final String NEW_BR_CREATED = "NEW_BR_CREATED";
+    public static final String GET_DB_TREE = "GET_DB_TREE";
 }

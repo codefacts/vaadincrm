@@ -8,7 +8,6 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import org.springframework.stereotype.Component;
 import vaadincrm.event.CloseOpenWindowsEvent;
 import vaadincrm.event.DashboardEventBus;
 import vaadincrm.event.NotificationsCountUpdatedEvent;
@@ -57,7 +56,7 @@ public class DashboardView extends Panel implements View {
         dashboardPanels.addStyleName("dashboard-panels");
         Responsive.makeResponsive(dashboardPanels);
 
-        dashboardPanels.addComponent(new TreeTableHandler().createTree());
+        dashboardPanels.addComponent(new DBTree().createTree());
 
         return dashboardPanels;
     }

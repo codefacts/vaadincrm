@@ -1,5 +1,7 @@
 package vaadincrm.model;
 
+import java.util.Date;
+
 /**
  * Created by someone on 26-Jul-2015.
  */

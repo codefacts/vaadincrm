@@ -131,12 +131,6 @@ public final class DashboardMenu extends CustomComponent {
                 menuItemComponent = buildBadgeWrapper(menuItemComponent,
                         notificationsBadge);
             }
-            if (view == ViewType.REPORTS) {
-                reportsBadge = new Label();
-                reportsBadge.setId(REPORTS_BADGE_ID);
-                menuItemComponent = buildBadgeWrapper(menuItemComponent,
-                        reportsBadge);
-            }
 
             menuItemsLayout.addComponent(menuItemComponent);
         }
