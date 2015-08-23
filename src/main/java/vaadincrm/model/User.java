@@ -27,6 +27,8 @@ public class User {
     }
 
     public static class Type {
+        public static final String id = "_id";
+        public static final String name = "name";
         public static final String label = "label";
     }
 }

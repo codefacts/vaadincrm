@@ -1,0 +1,11 @@
+{
+  "db_name": "phase_0",
+  //  // Credentials / Auth
+  //  "username": "admin",
+  //  // string
+  //  "password": "123",
+  //  // string
+  //  "authSource": "some.db"
+  "host" : "localhost", // string
+  "port" : 27017      // int
+}

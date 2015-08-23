@@ -3,6 +3,7 @@ package vaadincrm;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
+import com.vaadin.navigator.Navigator;
 import com.vaadin.server.*;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.UI;
@@ -55,7 +56,10 @@ public class AppUI extends UI {
             // Authenticated user
             setContent(new MainView());
             removeStyleName("loginview");
-            getNavigator().navigateTo(getNavigator().getState());
+
+            final Navigator navigator = getNavigator();
+            if (navigator != null) navigator.navigateTo(navigator.getState());
+
         } else {
             setContent(new LoginView());
             addStyleName("loginview");

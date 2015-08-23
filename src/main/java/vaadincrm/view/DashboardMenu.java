@@ -56,7 +56,7 @@ public final class DashboardMenu extends CustomComponent {
     }
 
     private Component buildTitle() {
-        Label logo = new Label("QuickTickets <strong>Dashboard</strong>",
+        Label logo = new Label("<strong>Dashboard</strong>",
                 ContentMode.HTML);
         logo.setSizeUndefined();
         HorizontalLayout logoWrapper = new HorizontalLayout(logo);
@@ -123,16 +123,10 @@ public final class DashboardMenu extends CustomComponent {
         menuItemsLayout.setHeight(100.0f, Unit.PERCENTAGE);
 
         for (final ViewType view : ViewType.values()) {
-            Component menuItemComponent = new ValoMenuItemButton(view);
-
-            if (view == ViewType.DASHBOARD) {
-                notificationsBadge = new Label();
-                notificationsBadge.setId(NOTIFICATIONS_BADGE_ID);
-                menuItemComponent = buildBadgeWrapper(menuItemComponent,
-                        notificationsBadge);
+            if (view.isShowInMenu()) {
+                Component menuItemComponent = new ValoMenuItemButton(view);
+                menuItemsLayout.addComponent(menuItemComponent);
             }
-
-            menuItemsLayout.addComponent(menuItemComponent);
         }
         return menuItemsLayout;
 

@@ -5,11 +5,14 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.EventBus;
+import org.apache.commons.io.IOUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import vaadincrm.codec.*;
 import vaadincrm.model.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -35,8 +38,24 @@ public class MainVerticle extends AbstractVerticle {
         });
     }
 
+    @Override
+    public void stop() throws Exception {
+
+    }
+
     private void registerCodecs(ConfigurableApplicationContext ctx) {
         final EventBus bus = getVertx().eventBus();
         bus.registerDefaultCodec(ArrayList.class, ctx.getBean(ArrayListToJsonArrayCodec.class));
+    }
+
+    public static String loadConfig(String file) {
+        InputStream stream = MainVerticle.class.getResourceAsStream(file);
+        try {
+            String string = IOUtils.toString(stream, "UTF-8");
+            return string;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "{}";
     }
 }

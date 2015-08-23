@@ -7,8 +7,4 @@ import java.util.Date;
  */
 public interface Model {
     public static final String id = "_id";
-    public static final String createDate = "createDate";
-    public static final String modifyDate = "modifyDate";
-    public static final String createdBy = "createdBy";
-    public static final String modifiedBy = "modifiedBy";
 }
