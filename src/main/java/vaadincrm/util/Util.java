@@ -60,12 +60,13 @@ public class Util {
         return (Map<String, Object>) o;
     }
 
-    public static String nullToEmpty(String message) {
-        return message == null ? "" : message;
+    public static String nullToEmpty(Object message) {
+        return message == null ? "" : message + "";
     }
 
     public static ErrorMessage errorMessage(String errorMessages) {
         System.out.println("Error Messages: " + errorMessages);
-        return new AbstractErrorMessage(errorMessages) {};
+        return new AbstractErrorMessage(errorMessages) {
+        };
     }
 }

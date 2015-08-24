@@ -39,6 +39,9 @@ public class RegionTable {
     private static final String UPDATE_REQUEST = Events.UPDATE_REGION;
     private static final String CREATE_REQUEST = Events.CREATE_REGION;
 
+    private final float VIEW_WINDOW_WIDTH = 600;
+    private final float VIEW_WINDOW_HEIGHT = 250f;
+
     private String params;
 
     private final Table table = new Table();
@@ -83,8 +86,8 @@ public class RegionTable {
 
     private void viewItemForm(final JsonObject obj) {
         final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(100.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(VIEW_WINDOW_WIDTH, Sizeable.Unit.PIXELS);
+        window.setHeight(VIEW_WINDOW_HEIGHT, Sizeable.Unit.PIXELS);
         window.center();
         final VerticalLayout content = new VerticalLayout();
         window.setContent(content);
