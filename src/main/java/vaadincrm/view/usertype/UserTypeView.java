@@ -2,15 +2,17 @@ package vaadincrm.view.usertype;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import vaadincrm.App;
 import vaadincrm.Events;
-import vaadincrm.util.ExceptionUtil;
-import vaadincrm.view.region.RegionTable;
+import vaadincrm.Resp;
+import vaadincrm.util.VaadinUtil;
 
 import static com.vaadin.server.Responsive.makeResponsive;
 
@@ -34,10 +36,15 @@ public class UserTypeView extends Panel implements View {
         root.addComponent(collectionTable.getTable());
 
         final UI ui = UI.getCurrent();
-        App.bus.send(Events.FIND_ALL_USER_TYPES, null, ExceptionUtil.handle((Message<JsonArray> v) -> {
-            System.out.println("ui: " + ui);
-            ui.access(() -> collectionTable.populateData(v.body()));
-        }));
+        App.bus.send(Events.FIND_ALL_USER_TYPES, null, (AsyncResult<Message<JsonArray>> r) -> {
+            ui.access(() -> {
+                if (r.failed()) {
+                    VaadinUtil.handleError(r.cause());
+                    return;
+                }
+                collectionTable.populateData(r.result().body());
+            });
+        });
     }
 
     @Override

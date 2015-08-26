@@ -21,10 +21,22 @@ public class Query {
     public static final String createdBy = "createdBy";
     public static final String modifiedBy = "modifiedBy";
     public static final String message = "message";
-    public static final String regionId = "regionId";
     public static final String area = "area";
-    public static final String areaId = "areaId";
     public static final String distributionHouse = "distributionHouse";
     public static final String distributionHouseId = "distributionHouseId";
     public static final String label = "label";
+    public static final String userId = "userId";
+    public static final String params = "params";
+
+    public static final String regionId = Area.region + "." + id;
+    public static final String areaId = House.area + "." + id;
+    public static final String houseId = concat(distributionHouse, id);
+    public static final String brId = concat(Contact.br, id);
+    public static final String userTypeId = concat(User.userType, id);
+    public static final String count = "count";
+    public static final String prefix = "prefix";
+
+    public static final String concat(String... strings) {
+        return String.join(".", strings);
+    }
 }

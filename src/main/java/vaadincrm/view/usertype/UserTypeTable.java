@@ -14,15 +14,15 @@ import vaadincrm.App;
 import vaadincrm.Events;
 import vaadincrm.Resp;
 import vaadincrm.model.Query;
-import vaadincrm.util.Util;
+import vaadincrm.util.VaadinUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.crm.util.Util.isEmptyOrNull;
 import static vaadincrm.model.Model.id;
-import static vaadincrm.util.Util.asMap;
-import static vaadincrm.util.Util.nullToEmpty;
+import static vaadincrm.util.VaadinUtil.asMap;
 
 /**
  * Created by someone on 20/08/2015.
@@ -32,7 +32,9 @@ public class UserTypeTable {
 
     private static final String ID_PROPERTY = "Id";
     private static final Object NAME_PROPERTY = "Name";
+    private static final Object ID_PREFIX_PROPERTY = "ID Prefix";
     private static final Object LABEL_PROPERTY = "Label";
+    private static final Object USER_COUNT_PROPERTY = "User Count";
 
     private static final Action ADD_ITEM_ACTION = new Action("Add new " + collection);
     private static final Action EDIT_ITEM_ACTION = new Action("Edit this " + collection);
@@ -58,9 +60,11 @@ public class UserTypeTable {
         table.setSizeFull();
         table.setSelectable(true);
 
-        table.addContainerProperty(ID_PROPERTY, Long.class, 0);
+        table.addContainerProperty(ID_PROPERTY, Long.class, 0L);
         table.addContainerProperty(NAME_PROPERTY, String.class, "");
+        table.addContainerProperty(ID_PREFIX_PROPERTY, String.class, "");
         table.addContainerProperty(LABEL_PROPERTY, String.class, "");
+        table.addContainerProperty(USER_COUNT_PROPERTY, Long.class, 0L);
 
         table.addActionHandler(new Action.Handler() {
             @Override
@@ -208,7 +212,7 @@ public class UserTypeTable {
                                 switch (e.getKey()) {
                                     case Query.name:
                                         errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
-                                        nameField.setComponentError(Util.errorMessage(errorMessages));
+                                        nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                 }
                             });
@@ -217,7 +221,7 @@ public class UserTypeTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + nullToEmpty(cause.getMessage()), Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()), Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;
@@ -232,15 +236,16 @@ public class UserTypeTable {
     public void populateData(final JsonArray data) {
         dataMap.clear();
         data.forEach(v -> {
-            JsonObject area = (JsonObject) v;
-            final Long areaId = area.getLong(id);
-            table.addItem(item(areaId, area.getString(Query.name), area.getString(Query.label)), areaId);
-            dataMap.put(areaId, area);
+            JsonObject userType = (JsonObject) v;
+            final Long areaId = userType.getLong(id);
+            table.addItem(item(areaId, userType.getString(Query.name), userType.getString(Query.prefix),
+                    userType.getString(Query.label), userType.getLong(Query.count)), areaId);
+            dataMap.put(areaId, userType);
         });
     }
 
-    private Object[] item(final Long id, final String name, String label) {
-        return new Object[]{id, name, label};
+    private Object[] item(final Long id, final String name, final String prefix, final String label, final Long userCount) {
+        return new Object[]{id, name, prefix, label, userCount == null ? 0L : userCount};
     }
 
     public Table getTable() {

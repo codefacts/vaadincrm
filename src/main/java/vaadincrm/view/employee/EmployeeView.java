@@ -2,15 +2,15 @@ package vaadincrm.view.employee;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import vaadincrm.App;
 import vaadincrm.Events;
-import vaadincrm.util.ExceptionUtil;
-import vaadincrm.view.region.RegionTable;
 
 import static com.vaadin.server.Responsive.makeResponsive;
 
@@ -31,13 +31,15 @@ public class EmployeeView extends Panel implements View {
 
         collectionTable = new EmployeeTable(event.getParameters()).init();
 
-        root.addComponent(collectionTable.getTable());
+        final NativeSelect userTypeSelect = collectionTable.getUserTypeSelect();
+
+        root.addComponents(userTypeSelect, collectionTable.getTable());
 
         final UI ui = UI.getCurrent();
-        App.bus.send(Events.FIND_ALL_EMPLOYEES, null, ExceptionUtil.handle((Message<JsonArray> v) -> {
+        App.bus.send(Events.FIND_ALL_EMPLOYEES, null, (AsyncResult<Message<JsonArray>> r) -> {
             System.out.println("ui: " + ui);
-            ui.access(() -> collectionTable.populateData(v.body()));
-        }));
+            ui.access(() -> collectionTable.populateData(r.result().body()));
+        });
     }
 
     @Override

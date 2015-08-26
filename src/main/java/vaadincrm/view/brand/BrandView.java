@@ -2,18 +2,17 @@ package vaadincrm.view.brand;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.Responsive;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
 import vaadincrm.Events;
-import vaadincrm.util.ExceptionUtil;
-import vaadincrm.view.collection.CollectionTable;
-import vaadincrm.view.region.RegionTable;
+import vaadincrm.Resp;
+import vaadincrm.util.VaadinUtil;
 
 import static com.vaadin.server.Responsive.makeResponsive;
 
@@ -37,10 +36,16 @@ public class BrandView extends Panel implements View {
         root.addComponent(collectionTable.getTable());
 
         final UI ui = UI.getCurrent();
-        App.bus.send(Events.FIND_ALL_BRANDS, null, ExceptionUtil.handle((Message<JsonArray> v) -> {
+        App.bus.send(Events.FIND_ALL_BRANDS, null, (AsyncResult<Message<JsonArray>> r) -> {
             System.out.println("ui: " + ui);
-            ui.access(() -> collectionTable.populateData(v.body()));
-        }));
+            ui.access(() -> {
+                if (r.failed()) {
+                    VaadinUtil.handleError(r.cause());
+                    return;
+                }
+                collectionTable.populateData(r.result().body());
+            });
+        });
     }
 
     @Override

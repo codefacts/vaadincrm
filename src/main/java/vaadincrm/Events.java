@@ -32,4 +32,5 @@ final public class Events {
     public static final String UPDATE_USER_TYPE = "UPDATE_USER_TYPE";
     public static final String CREATE_USER_TYPE = "CREATE_USER_TYPE";
     public static final String FIND_ALL_USER_TYPES = "FIND_ALL_USER_TYPES";
+    public static final String FIND_EMPLOYEE = "FIND_EMPLOYEE";
 }

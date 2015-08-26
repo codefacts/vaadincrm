@@ -5,6 +5,7 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import io.crm.FailureCode;
+import io.crm.util.ExceptionUtil;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -16,21 +17,21 @@ import vaadincrm.Events;
 import vaadincrm.Resp;
 import vaadincrm.model.Query;
 import vaadincrm.util.FutureResult;
-import vaadincrm.util.Util;
+import vaadincrm.util.VaadinUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static io.crm.util.ExceptionUtil.toRuntime;
+import static io.crm.util.Util.isEmptyOrNull;
 import static vaadincrm.Resp._created_successfully;
 import static vaadincrm.Resp._updated_successfully;
 import static vaadincrm.Resp.value_is_invalid;
 import static vaadincrm.model.Model.id;
-import static vaadincrm.util.ExceptionUtil.toRuntime;
-import static vaadincrm.util.Util.asMap;
-import static vaadincrm.util.Util.errorMessage;
-import static vaadincrm.util.Util.nullToEmpty;
+import static vaadincrm.util.VaadinUtil.asMap;
+import static vaadincrm.util.VaadinUtil.errorMessage;
 
 /**
  * Created by someone on 16-Aug-2015.
@@ -51,6 +52,10 @@ public class LocationTable {
     private static final Action ADD_ITEM_ACTION = new Action("Add new " + collection);
     private static final Action EDIT_ITEM_ACTION = new Action("Edit this " + collection);
     private static final Action VIEW_ITEM_ACTION = new Action("View this " + collection);
+    private static final float EDIT_WINDOW_WIDTH = 1000;
+    private static final float EDIT_WINDOW_HEIGHT = 300;
+    private static final float VIEW_WINDOW_WIDTH = 1000;
+    private static final float VIEW_WINDOW_HEIGHT = 300;
 
     private String params;
 
@@ -97,8 +102,8 @@ public class LocationTable {
 
     private void viewItemForm(final JsonObject area) {
         final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(VIEW_WINDOW_WIDTH, Sizeable.Unit.PIXELS);
+        window.setHeight(VIEW_WINDOW_HEIGHT, Sizeable.Unit.PIXELS);
         window.center();
         final VerticalLayout content = new VerticalLayout();
         window.setContent(content);
@@ -139,8 +144,8 @@ public class LocationTable {
 
     private void editItemForm(final JsonObject area) throws ExecutionException, InterruptedException {
         final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(EDIT_WINDOW_WIDTH, Sizeable.Unit.PIXELS);
+        window.setHeight(EDIT_WINDOW_HEIGHT, Sizeable.Unit.PIXELS);
         window.center();
         final FormLayout form = new FormLayout();
         window.setContent(form);
@@ -222,7 +227,7 @@ public class LocationTable {
                                 switch (e.getKey()) {
                                     case Query.name:
                                         errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
-                                        nameField.setComponentError(Util.errorMessage(errorMessages));
+                                        nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                     case PARENT_ID_FIELD:
                                         errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
@@ -235,7 +240,7 @@ public class LocationTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + nullToEmpty(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;
@@ -249,8 +254,8 @@ public class LocationTable {
 
     private void addItemForm() throws ExecutionException, InterruptedException {
         final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(EDIT_WINDOW_WIDTH, Sizeable.Unit.PIXELS);
+        window.setHeight(EDIT_WINDOW_HEIGHT, Sizeable.Unit.PIXELS);
         window.center();
         final FormLayout form = new FormLayout();
         window.setContent(form);

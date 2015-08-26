@@ -6,7 +6,6 @@ import io.vertx.core.eventbus.MessageCodec;
 import io.vertx.core.json.JsonArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import vaadincrm.util.ExceptionUtil;
 
 import java.util.ArrayList;
 
@@ -24,7 +23,7 @@ public class ArrayListToJsonArrayCodec implements MessageCodec<ArrayList, JsonAr
 
     @Override
     public void encodeToWire(Buffer buffer, ArrayList arrayList) {
-        byte[] bytes = ExceptionUtil.sallowCall(() -> mapper.writeValueAsBytes(arrayList));
+        byte[] bytes = io.crm.util.ExceptionUtil.sallowCall(() -> mapper.writeValueAsBytes(arrayList));
         buffer.appendInt(bytes.length);
         buffer.appendBytes(bytes);
     }

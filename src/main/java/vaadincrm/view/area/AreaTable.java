@@ -5,6 +5,7 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import io.crm.FailureCode;
+import io.crm.util.ExceptionUtil;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -15,24 +16,22 @@ import vaadincrm.App;
 import vaadincrm.Events;
 import vaadincrm.Resp;
 import vaadincrm.model.Query;
-import vaadincrm.util.ExceptionUtil;
 import vaadincrm.util.FutureResult;
-import vaadincrm.util.Util;
+import vaadincrm.util.VaadinUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.crm.util.ExceptionUtil.toRuntime;
+import static io.crm.util.Util.isEmptyOrNull;
 import static vaadincrm.Resp._created_successfully;
 import static vaadincrm.Resp._updated_successfully;
 import static vaadincrm.Resp.value_is_invalid;
 import static vaadincrm.model.Model.id;
-import static vaadincrm.util.ExceptionUtil.toRuntime;
-import static vaadincrm.util.Util.asMap;
-import static vaadincrm.util.Util.errorMessage;
-import static vaadincrm.util.Util.nullToEmpty;
+import static vaadincrm.util.VaadinUtil.asMap;
+import static vaadincrm.util.VaadinUtil.errorMessage;
 
 /**
  * Created by someone on 16-Aug-2015.
@@ -226,7 +225,7 @@ public class AreaTable {
                                 switch (e.getKey()) {
                                     case Query.name:
                                         errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
-                                        nameField.setComponentError(Util.errorMessage(errorMessages));
+                                        nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                     case PARENT_ID_FIELD:
                                         errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
@@ -239,7 +238,7 @@ public class AreaTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + nullToEmpty(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;

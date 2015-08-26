@@ -14,15 +14,15 @@ import vaadincrm.App;
 import vaadincrm.Events;
 import vaadincrm.Resp;
 import vaadincrm.model.Query;
-import vaadincrm.util.Util;
+import vaadincrm.util.VaadinUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.crm.util.Util.isEmptyOrNull;
 import static vaadincrm.model.Model.id;
-import static vaadincrm.util.Util.asMap;
-import static vaadincrm.util.Util.nullToEmpty;
+import static vaadincrm.util.VaadinUtil.asMap;
 
 /**
  * Created by someone on 16-Aug-2015.
@@ -192,7 +192,7 @@ public class RegionTable {
                                 switch (e.getKey()) {
                                     case Query.name:
                                         errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
-                                        nameField.setComponentError(Util.errorMessage(errorMessages));
+                                        nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                 }
                             });
@@ -201,7 +201,7 @@ public class RegionTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + nullToEmpty(cause.getMessage()), Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()), Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;
