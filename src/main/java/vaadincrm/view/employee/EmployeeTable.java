@@ -3,6 +3,7 @@ package vaadincrm.view.employee;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
 import com.vaadin.server.Sizeable;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import io.crm.FailureCode;
 import io.crm.util.SimpleCounter;
@@ -26,10 +27,12 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static com.vaadin.server.Sizeable.Unit.PIXELS;
 import static io.crm.util.ExceptionUtil.sallowCall;
 import static io.crm.util.Util.*;
 import static vaadincrm.model.Model.id;
 import static vaadincrm.util.VaadinUtil.asMap;
+import static vaadincrm.util.VaadinUtil.okCancelFooter;
 
 /**
  * Created by someone on 20/08/2015.
@@ -145,27 +148,13 @@ final public class EmployeeTable {
             return;
         }
 
-        final Window window = new Window("View Password");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
-        window.center();
-        final VerticalLayout content = new VerticalLayout();
-        window.setContent(content);
-
-        content.addStyleName("outlined");
-        content.setSizeFull();
-        content.setSpacing(true);
-        content.setMargin(true);
-
-        final Label passwordLabel = new Label("Password: " + user.getString(User.password, ""));
-        content.addComponent(passwordLabel);
-        UI.getCurrent().addWindow(window);
+        VaadinUtil.showConfirmDialog("Password", new Label(VaadinUtil.p("Password: " + user.getString(User.password, "")), ContentMode.HTML));
     }
 
     private void viewItemForm(final JsonObject obj) {
         final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(100.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(400.0f, PIXELS);
+        window.setHeight(100.0f, PIXELS);
         window.center();
         final VerticalLayout content = new VerticalLayout();
         window.setContent(content);
@@ -194,8 +183,8 @@ final public class EmployeeTable {
 
     private void editItemForm(final JsonObject area) {
         final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(400.0f, PIXELS);
+        window.setHeight(200.0f, PIXELS);
         window.center();
         final FormLayout form = new FormLayout();
         window.setContent(form);
@@ -225,8 +214,8 @@ final public class EmployeeTable {
 
     private void addItemForm() {
         final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(400.0f, PIXELS);
+        window.setHeight(200.0f, PIXELS);
         window.center();
         final FormLayout form = new FormLayout();
         window.setContent(form);
