@@ -3,13 +3,20 @@ package vaadincrm.util;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 
-import java.util.Map;
+import static com.vaadin.server.Sizeable.Unit.PIXELS;
 
 /**
  * Created by someone on 27/08/2015.
  */
 public class PopupWindowBuilder {
-    private Window window;
+    private static final float DEFAULT_DIALOG_WINDOW_WIDTH = VaadinUtil.DEFAULT_DIALOG_WINDOW_WIDTH;
+    private static final float DEFAULT_DIALOG_WINDOW_HEIGHT = VaadinUtil.DEFAULT_DIALOG_WINDOW_HEIGHT;
+    private final Window window;
+    private ContentBuilder contentBuilder;
+
+    public PopupWindowBuilder(Window window) {
+        this.window = window;
+    }
 
     public PopupWindowBuilder setHeight(float height, Sizeable.Unit unit) {
         window.setHeight(height, unit);
@@ -21,23 +28,36 @@ public class PopupWindowBuilder {
         return this;
     }
 
-    public ContentBuilder content() {
-        return new ContentBuilder();
+    public PopupWindowBuilder content(ContentBuilder contentBuilder) {
+        contentBuilder.window(window);
+        this.contentBuilder = contentBuilder;
+        return this;
     }
 
-    public static PopupWindowBuilder create() {
-        final PopupWindowBuilder builder = new PopupWindowBuilder();
-
-        final Window window = new Window("View Password");
+    public static PopupWindowBuilder create(String windowTitle) {
+        final Window window = new Window(windowTitle);
         window.center();
-
-        builder.window = window;
+        window.setWidth(DEFAULT_DIALOG_WINDOW_WIDTH, PIXELS);
+        window.setHeight(DEFAULT_DIALOG_WINDOW_HEIGHT, PIXELS);
+        final PopupWindowBuilder builder = new PopupWindowBuilder(window);
         return builder;
     }
 
-    public class ContentBuilder {
+    public PopupWindow build() {
+        ContentBuilder.FooterBuilder footerBuilder = contentBuilder.footerBuilder;
+        if (contentBuilder.content == null) throw new IllegalArgumentException("Popup window content can't be null.");
+        footerBuilder.footer.setExpandRatio(footerBuilder.footerTextLabel, 1);
+        contentBuilder.root.addComponent(footerBuilder.footer);
+        contentBuilder.root.setExpandRatio(contentBuilder.content, 1);
+        window.setContent(contentBuilder.root);
+        return new PopupWindow(window, contentBuilder.content, footerBuilder.footer, footerBuilder.footerTextLabel, footerBuilder.okButton, footerBuilder.cancelButton);
+    }
+
+    public static class ContentBuilder {
+        Window window;
         final VerticalLayout root;
         final VerticalLayout content;
+        private FooterBuilder footerBuilder;
 
         public ContentBuilder() {
             root = new VerticalLayout();
@@ -50,20 +70,25 @@ public class PopupWindowBuilder {
             root.addComponent(content);
         }
 
+        public ContentBuilder window(Window window) {
+            footerBuilder.window(window);
+            this.window = window;
+            return this;
+        }
+
         public ContentBuilder addContent(final Component component) {
             content.addComponent(component);
             return this;
         }
 
-        public FooterBuilder footer() {
-            return new FooterBuilder("");
+        public ContentBuilder footer(FooterBuilder footerBuilder) {
+            footerBuilder.window(window);
+            this.footerBuilder = footerBuilder;
+            return this;
         }
 
-        public FooterBuilder footer(final String footerText) {
-            return new FooterBuilder(footerText);
-        }
-
-        public class FooterBuilder {
+        public static class FooterBuilder {
+            Window window;
             final HorizontalLayout footer;
             final Label footerTextLabel;
             Button okButton;
@@ -77,13 +102,19 @@ public class PopupWindowBuilder {
 
                 footerTextLabel = new Label(footerText);
                 footerTextLabel.setSizeUndefined();
+                footer.addComponent(footerTextLabel);
             }
 
-            public FooterBuilder addOkButton() {
-                return addOkButton("Ok", e -> window.close());
+            public FooterBuilder window(final Window window) {
+                this.window = window;
+                return this;
             }
 
-            public FooterBuilder addOkButton(String buttonText, Button.ClickListener clickListener) {
+            public FooterBuilder okButton() {
+                return okButton("Ok", e -> window.close());
+            }
+
+            public FooterBuilder okButton(String buttonText, Button.ClickListener clickListener) {
                 okButton = new Button(buttonText);
                 okButton.addStyleName("primary");
                 if (clickListener != null) okButton.addClickListener(clickListener);
@@ -91,11 +122,11 @@ public class PopupWindowBuilder {
                 return this;
             }
 
-            public FooterBuilder addCancelButton() {
-                return addCancelButton("Cancel", e -> window.close());
+            public FooterBuilder cancelButton() {
+                return cancelButton("Cancel", e -> window.close());
             }
 
-            public FooterBuilder addCancelButton(String buttonText, Button.ClickListener clickListener) {
+            public FooterBuilder cancelButton(String buttonText, Button.ClickListener clickListener) {
                 cancelButton = new Button(buttonText);
                 if (clickListener != null) cancelButton.addClickListener(clickListener);
                 footer.addComponent(cancelButton);
@@ -105,14 +136,6 @@ public class PopupWindowBuilder {
             public FooterBuilder addComponent(final Component component) {
                 footer.addComponent(component);
                 return this;
-            }
-
-            public PopupWindow get() {
-                if (content == null) throw new IllegalArgumentException("Popup window content can't be null.");
-                footer.setExpandRatio(footerTextLabel, 1);
-                root.addComponent(footer);
-                root.setExpandRatio(content, 1);
-                return new PopupWindow(window, root, footer, footerTextLabel, okButton, cancelButton);
             }
         }
     }

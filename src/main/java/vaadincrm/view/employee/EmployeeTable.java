@@ -2,11 +2,14 @@ package vaadincrm.view.employee;
 
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
-import com.vaadin.server.Sizeable;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
+import fluentui.FluentFormLayout;
 import io.crm.FailureCode;
 import io.crm.util.SimpleCounter;
+import io.crm.util.Touple1;
+import io.crm.util.Touple2;
+import io.crm.util.Util;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -16,23 +19,35 @@ import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
 import vaadincrm.Events;
 import vaadincrm.Resp;
+import vaadincrm.model.EmployeeType;
 import vaadincrm.model.Query;
 import vaadincrm.model.User;
-import vaadincrm.util.FutureResult;
-import vaadincrm.util.VaadinUtil;
+import vaadincrm.service.QueryService;
+import vaadincrm.service.SelectionService;
+import vaadincrm.util.*;
+import vaadincrm.util.PopupWindowBuilder.ContentBuilder;
+import vaadincrm.util.PopupWindowBuilder.ContentBuilder.FooterBuilder;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.vaadin.server.Sizeable.Unit.PIXELS;
+import static fluentui.FluentFormLayout.formLayout;
+import static fluentui.FluentTextField.textField;
 import static io.crm.util.ExceptionUtil.sallowCall;
 import static io.crm.util.Util.*;
+import static vaadincrm.App.bus;
+import static vaadincrm.Events.CREATE_EMPLOYEE;
 import static vaadincrm.model.Model.id;
 import static vaadincrm.util.VaadinUtil.asMap;
-import static vaadincrm.util.VaadinUtil.okCancelFooter;
+import static vaadincrm.util.VaadinUtil.handleError;
+import static vaadincrm.util.VaadinUtil.showConfirmDialog;
 
 /**
  * Created by someone on 20/08/2015.
@@ -54,7 +69,9 @@ final public class EmployeeTable {
     private static final Action VIEW_ITEM_ACTION = new Action("View this " + collection);
     private static final Action VIEW_PASSWORD_ACTION = new Action("View password");
     private static final String UPDATE_REQUEST = Events.UPDATE_EMPLOYEE;
-    private static final String CREATE_REQUEST = Events.CREATE_EMPLOYEE;
+    private static final String CREATE_REQUEST = CREATE_EMPLOYEE;
+    private static final String NEXT = "Next";
+    private static final String CREATE = "Create";
 
     private String params;
 
@@ -108,7 +125,7 @@ final public class EmployeeTable {
             @Override
             public void handleAction(final Action action, final Object sender, final Object target) {
                 if (action == ADD_ITEM_ACTION) {
-                    addItemForm();
+                    selectUserTypePopup();
                 } else if (action == EDIT_ITEM_ACTION) {
                     editItemForm(getUserById((String) target));
                 } else if (action == VIEW_ITEM_ACTION) {
@@ -125,7 +142,7 @@ final public class EmployeeTable {
     private JsonObject getUserById(String userId) {
         final FutureResult<JsonObject> futureResult = new FutureResult<>();
 
-        App.bus.send(Events.FIND_EMPLOYEE, userId, (AsyncResult<Message<JsonObject>> r) -> {
+        bus.send(Events.FIND_EMPLOYEE, userId, (AsyncResult<Message<JsonObject>> r) -> {
             if (r.failed()) {
                 futureResult.signalError(r.cause());
                 return;
@@ -148,7 +165,8 @@ final public class EmployeeTable {
             return;
         }
 
-        VaadinUtil.showConfirmDialog("Password", new Label(VaadinUtil.p("Password: " + user.getString(User.password, "")), ContentMode.HTML));
+        showConfirmDialog("Password", new Label(VaadinUtil.p("Password: " + user.getString(User.password, "")), ContentMode.HTML),
+                w -> w.close());
     }
 
     private void viewItemForm(final JsonObject obj) {
@@ -204,7 +222,7 @@ final public class EmployeeTable {
         final UI ui = UI.getCurrent();
         updateButton.addClickListener(event -> {
             nameField.setComponentError(null);
-            App.bus.send(UPDATE_REQUEST, new JsonObject().put(id, area.getLong(id))
+            bus.send(UPDATE_REQUEST, new JsonObject().put(id, area.getLong(id))
                     .put(Query.name, nameField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
         });
         form.addComponent(updateButton);
@@ -212,35 +230,331 @@ final public class EmployeeTable {
         ui.addWindow(window);
     }
 
-    private void addItemForm() {
-        final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, PIXELS);
-        window.setHeight(200.0f, PIXELS);
-        window.center();
-        final FormLayout form = new FormLayout();
-        window.setContent(form);
+    private void selectUserTypePopup() {
+        final NativeSelect userTypeSelect = userTypeSelect();
+        final FormLayout root = formLayout()
+                .spacing(true)
+                .sizeFull()
+                .addComponent(userTypeSelect)
+                .get();
 
-        form.addStyleName("outlined");
-        form.setSizeFull();
-        form.setSpacing(true);
-        form.setMargin(true);
-
-        final TextField nameField = new TextField("Name", "");
-        nameField.setNullSettingAllowed(false);
-        nameField.setRequired(true);
-        form.addComponent(nameField);
-
-        final Button updateButton = new Button("Create");
-        updateButton.setImmediate(true);
-        final UI ui = UI.getCurrent();
-        updateButton.addClickListener(event -> {
-            nameField.setComponentError(null);
-            App.bus.send(CREATE_REQUEST, new JsonObject()
-                    .put(Query.name, nameField.getValue()), respond(ui, window, nameField, collection + " created successfully."));
+        showConfirmDialog("Select User Type", root, w -> {
+            final Long value = (Long) userTypeSelect.getValue();
+            if (value.equals(0L)) {
+                Notification.show("Please select user type to create a user of that type.", Notification.Type.ERROR_MESSAGE);
+                return;
+            }
+            w.close();
+            addItemForm(value);
         });
-        form.addComponent(updateButton);
+    }
 
-        ui.addWindow(window);
+    private void addItemForm(final long userTypeId) {
+        final UI ui = UI.getCurrent();
+        final Button prevButton = new Button("Previous");
+        prevButton.addStyleName("primary");
+
+        final Touple2<FormLayout, Map<String, Field>> userBasicForm = userBasicForm();
+
+        final Touple1<PopupWindow> touple1 = new Touple1<>();
+        final PopupWindow popupWindow = touple1.t1 = PopupWindowBuilder.create("Create User")
+                .setHeight(600, PIXELS)
+                .content(new ContentBuilder()
+                        .addContent(userBasicForm.t1)
+                        .footer(new FooterBuilder("")
+                                .okButton(okButtonText(userTypeId), e -> {
+                                    final PopupWindow pw = touple1.t1;
+                                    final Map<String, Field> fieldMap = userBasicForm.t2;
+
+                                    if (pw.getOkButton().getCaption().equals(CREATE)) {
+                                        bus.send(CREATE_EMPLOYEE, user(userTypeId, fieldMap), r -> {
+                                            ui.access(() -> {
+                                                if (r.failed()) {
+                                                    handleError(r.cause());
+                                                    return;
+                                                }
+                                            });
+                                        });
+                                        return;
+                                    }
+
+                                    final VerticalLayout content = touple1.t1.getContent();
+                                    final Window window = touple1.t1.getWindow();
+                                    content.removeAllComponents();
+                                    touple1.t1.getOkButton().setCaption(CREATE);
+
+                                    if (userTypeId == EmployeeType.area_coordinator.id) {
+                                        content.addComponent(createACForm(fieldMap));
+                                        window.setCaption("Select Area for Area Coordinator");
+                                    } else if (userTypeId == EmployeeType.br_supervisor.id) {
+                                        content.addComponent(createSupForm(fieldMap));
+                                        window.setCaption("Select Distribution Houses for Supervisor");
+                                    } else if (userTypeId == EmployeeType.br.id) {
+                                        content.addComponent(createBrForm(fieldMap));
+                                        window.setCaption("Select Distribution House for BR");
+                                    }
+                                })
+                                .cancelButton()))
+                .build();
+
+        ui.addWindow(popupWindow.getWindow());
+    }
+
+    private Component createBrForm(Map<String, Field> fieldMap) {
+        final Long Zero = 0L;
+        final NativeSelect houseSelect = new NativeSelect("Distribution House");
+        final NativeSelect areaSelect = new NativeSelect("Area");
+        final NativeSelect regionSelect = new NativeSelect("Region");
+
+        houseSelect.addItem(Zero);
+        areaSelect.addItem(Zero);
+        regionSelect.addItem(Zero);
+
+        houseSelect.setItemCaption(Zero, "Select Distribution House");
+        areaSelect.setItemCaption(Zero, "Select Area");
+        regionSelect.setItemCaption(Zero, "Select Region");
+
+        houseSelect.setNullSelectionAllowed(false);
+        areaSelect.setNullSelectionAllowed(false);
+        regionSelect.setNullSelectionAllowed(false);
+
+        houseSelect.setRequired(true);
+
+        final List<JsonObject> houseList = QueryService.getService().findAll(Events.FIND_ALL_HOUSES, new JsonObject());
+        houseList.forEach(j -> {
+            final Long objId = j.getLong(Query.id);
+            houseSelect.addItem(objId);
+            houseSelect.setItemCaption(objId, j.getString(Query.name));
+        });
+
+        final List<JsonObject> areaList = QueryService.getService().findAll(Events.FIND_ALL_AREAS, new JsonObject());
+        areaList.forEach(j -> {
+            final Long objId = j.getLong(Query.id);
+            areaSelect.addItem(objId);
+            areaSelect.setItemCaption(objId, j.getString(Query.name));
+        });
+
+        final List<JsonObject> regionList = QueryService.getService().findAll(Events.FIND_ALL_REGIONS, new JsonObject());
+        regionList.forEach(j -> {
+            final Long objId = j.getLong(Query.id);
+            regionSelect.addItem(objId);
+            regionSelect.setItemCaption(objId, j.getString(Query.name));
+        });
+
+        houseSelect.setValue(Zero);
+        areaSelect.setValue(Zero);
+        regionSelect.setValue(Zero);
+
+        houseSelect.setWidth("100%");
+        areaSelect.setWidth("100%");
+        regionSelect.setWidth("100%");
+
+        new SelectionService(houseList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)),
+                areaList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)))
+                .onAreaRegionSelection(houseSelect, areaSelect, regionSelect);
+
+        final FormLayout form = formLayout()
+                .addComponent(houseSelect)
+                .addComponent(areaSelect)
+                .addComponent(regionSelect)
+                .spacing()
+                .margin()
+                .sizeFull()
+                .get();
+        return form;
+    }
+
+    private Component createSupForm(Map<String, Field> fieldMap) {
+        final Long Zero = 0L;
+        final NativeSelect houseSelect = new NativeSelect("Distribution House");
+        final NativeSelect areaSelect = new NativeSelect("Area");
+        final NativeSelect regionSelect = new NativeSelect("Region");
+
+        houseSelect.addItem(Zero);
+        areaSelect.addItem(Zero);
+        regionSelect.addItem(Zero);
+
+        houseSelect.setItemCaption(Zero, "Select Distribution House");
+        areaSelect.setItemCaption(Zero, "Select Area");
+        regionSelect.setItemCaption(Zero, "Select Region");
+
+        houseSelect.setNullSelectionAllowed(false);
+        areaSelect.setNullSelectionAllowed(false);
+        regionSelect.setNullSelectionAllowed(false);
+
+        houseSelect.setRequired(true);
+
+        final List<JsonObject> houseList = QueryService.getService().findAll(Events.FIND_ALL_HOUSES, new JsonObject());
+        houseList.forEach(j -> {
+            final Long objId = j.getLong(Query.id);
+            houseSelect.addItem(objId);
+            houseSelect.setItemCaption(objId, j.getString(Query.name));
+        });
+
+        final List<JsonObject> areaList = QueryService.getService().findAll(Events.FIND_ALL_AREAS, new JsonObject());
+        areaList.forEach(j -> {
+            final Long objId = j.getLong(Query.id);
+            areaSelect.addItem(objId);
+            areaSelect.setItemCaption(objId, j.getString(Query.name));
+        });
+
+        final List<JsonObject> regionList = QueryService.getService().findAll(Events.FIND_ALL_REGIONS, new JsonObject());
+        regionList.forEach(j -> {
+            final Long objId = j.getLong(Query.id);
+            regionSelect.addItem(objId);
+            regionSelect.setItemCaption(objId, j.getString(Query.name));
+        });
+
+        houseSelect.setValue(Zero);
+        areaSelect.setValue(Zero);
+        regionSelect.setValue(Zero);
+
+        houseSelect.setWidth("100%");
+        areaSelect.setWidth("100%");
+        regionSelect.setWidth("100%");
+
+        new SelectionService(houseList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)),
+                areaList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)))
+                .onAreaRegionSelection(houseSelect, areaSelect, regionSelect);
+
+        final FormLayout form = formLayout()
+                .addComponent(houseSelect)
+                .addComponent(areaSelect)
+                .addComponent(regionSelect)
+                .spacing()
+                .margin()
+                .sizeFull()
+                .get();
+        return form;
+    }
+
+    private Component createACForm(Map<String, Field> fieldMap) {
+        final Long Zero = 0L;
+        final NativeSelect areaSelect = new NativeSelect("Area");
+        final NativeSelect regionSelect = new NativeSelect("Region");
+
+        areaSelect.addItem(Zero);
+        regionSelect.addItem(Zero);
+        areaSelect.setItemCaption(Zero, "Select Area");
+        regionSelect.setItemCaption(Zero, "Select Region");
+
+        areaSelect.setNullSelectionAllowed(false);
+        regionSelect.setNullSelectionAllowed(false);
+
+        areaSelect.setRequired(true);
+
+        final List<JsonObject> areaList = QueryService.getService().findAll(Events.FIND_ALL_AREAS, new JsonObject());
+        areaList.forEach(j -> {
+            final Long objId = j.getLong(Query.id);
+            areaSelect.addItem(objId);
+            areaSelect.setItemCaption(objId, j.getString(Query.name));
+        });
+
+        final List<JsonObject> regionList = QueryService.getService().findAll(Events.FIND_ALL_REGIONS, new JsonObject());
+        regionList.forEach(j -> {
+            final Long objId = j.getLong(Query.id);
+            regionSelect.addItem(objId);
+            regionSelect.setItemCaption(objId, j.getString(Query.name));
+        });
+
+        areaSelect.setValue(Zero);
+        regionSelect.setValue(Zero);
+
+        areaSelect.setWidth("100%");
+        regionSelect.setWidth("100%");
+
+        new SelectionService(QueryService.getService()
+                .findAll(Events.FIND_ALL_HOUSES, new JsonObject())
+                .stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)),
+                areaList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)))
+                .onAreaRegionSelection(areaSelect, regionSelect);
+
+        final FormLayout form = formLayout()
+                .addComponent(areaSelect)
+                .addComponent(regionSelect)
+                .spacing()
+                .margin()
+                .sizeFull()
+                .get();
+        return form;
+    }
+
+    private JsonObject user(long userTypeId, Map<String, Field> userMap) {
+        final JsonObject user = new JsonObject();
+        userMap.forEach((k, v) -> {
+            final Object value = v.getValue();
+            if (value instanceof Date) {
+                user.put(k, toMongoDate((Date) value));
+            } else {
+                user.put(k, value);
+            }
+        });
+        user.put(User.userType, userTypeId);
+        return user;
+    }
+
+    private String okButtonText(final long userTypeId) {
+        return userTypeId == EmployeeType.area_coordinator.id
+                || userTypeId == EmployeeType.br_supervisor.id
+                || userTypeId == EmployeeType.br.id ? NEXT : CREATE;
+    }
+
+    private Touple2<FormLayout, Map<String, Field>> userBasicForm() {
+
+        final Map<String, Field> map = new LinkedHashMap<>();
+
+        final PasswordField passwordField = new PasswordField("Password");
+        passwordField.setNullSettingAllowed(false);
+        passwordField.setRequired(true);
+        passwordField.setWidth("100%");
+
+        final DateField dobField = new DateField("Date of Birth");
+        dobField.setRequired(true);
+        dobField.setWidth("100%");
+
+        final DateField joinDate = new DateField("Join Date");
+        joinDate.setRequired(true);
+        joinDate.setWidth("100%");
+
+        final MapBuilder<String, Field> mapBuilder = new MapBuilder<>(map);
+
+        final FormLayout root = formLayout().spacing(true)
+                .sizeFull()
+                .spacing()
+                .margin()
+                .addComponent(
+                        mapBuilder.putAndReturn(Query.name, textField("Name", "")
+                                .nullSettingAllowed(false)
+                                .required(true)
+                                .width("100%")
+                                .get()),
+                        mapBuilder.putAndReturn(User.mobile, textField("Mobile", "")
+                                .nullSettingAllowed(false)
+                                .required()
+                                .width("100%")
+                                .get()),
+                        mapBuilder.putAndReturn(User.mail, textField("Email", "")
+                                .nullSettingAllowed(false)
+                                .required()
+                                .width("100%")
+                                .get()),
+                        mapBuilder.putAndReturn(User.username, textField("Username")
+                                .required(false)
+                                .nullSettingAllowed()
+                                .width("100%")
+                                .get()),
+                        mapBuilder.putAndReturn(User.password, passwordField),
+                        mapBuilder.putAndReturn(User.dateOfBirth, dobField),
+                        mapBuilder.putAndReturn(User.joinDate, joinDate),
+                        mapBuilder.putAndReturn(User.designation, textField("Designation")
+                                .required()
+                                .nullSettingAllowed(false)
+                                .width("100%")
+                                .get())
+                )
+                .get();
+
+        return new Touple2<>(root, map);
     }
 
     private Handler<AsyncResult<Message<Object>>> respond(final UI ui, final Window window, final TextField nameField, String successMessage) {
@@ -313,6 +627,27 @@ final public class EmployeeTable {
         return userTypeSelect;
     }
 
+    private NativeSelect userTypeSelect() {
+        final JsonArray userTypes = findAllUserTypes();
+
+        Long Zero = 0L;
+        final NativeSelect nativeSelect = new NativeSelect("User Type");
+        nativeSelect.addItem(Zero);
+
+        userTypes.forEach(u -> {
+            JsonObject userType = (JsonObject) u;
+            final Long typeId = userType.getLong(Query.id);
+            nativeSelect.addItem(typeId);
+            nativeSelect.setItemCaption(typeId, String.format("%s (%s)", userType.getString(Query.name, ""),
+                    userType.getString(Query.prefix, "")));
+        });
+
+        nativeSelect.setItemCaption(Zero, "Select User Type");
+        nativeSelect.setValue(Zero);
+        nativeSelect.setNullSelectionAllowed(false);
+        return nativeSelect;
+    }
+
     private void initUserTypeSelect() {
         userTypeSelect = new NativeSelect();
         final JsonArray userTypes = findAllUserTypes();
@@ -348,7 +683,7 @@ final public class EmployeeTable {
 
     private void filterAndUpdateTable(JsonObject criteria) {
         final UI ui = UI.getCurrent();
-        App.bus.send(Events.FIND_ALL_EMPLOYEES, new JsonObject()
+        bus.send(Events.FIND_ALL_EMPLOYEES, new JsonObject()
                 .put(Query.params, criteria), (AsyncResult<Message<JsonArray>> r) -> {
             ui.access(() -> {
                 if (r.failed()) {
@@ -366,7 +701,7 @@ final public class EmployeeTable {
 
     private JsonArray findAllUserTypes() {
         final FutureResult<JsonArray> futureResult = new FutureResult<>();
-        App.bus.send(Events.FIND_ALL_USER_TYPES, null, (AsyncResult<Message<JsonArray>> r) -> {
+        bus.send(Events.FIND_ALL_USER_TYPES, null, (AsyncResult<Message<JsonArray>> r) -> {
             if (r.failed()) {
                 futureResult.signalError(r.cause());
                 return;

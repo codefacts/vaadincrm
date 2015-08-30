@@ -260,4 +260,13 @@ public final class FluentFormLayout {
         return this;
     }
 
+    public FluentFormLayout sizeFull() {
+        formLayout.setSizeFull();
+        return this;
+    }
+
+    public FluentFormLayout sizeUndefined() {
+        formLayout.setSizeUndefined();
+        return this;
+    }
 }

@@ -30,8 +30,7 @@ public final class FluentPanel {
     }
 
     /**
-     * @return
-     *         the created instance
+     * @return the created instance
      */
     public final Panel get() {
         return panel;
@@ -64,8 +63,7 @@ public final class FluentPanel {
     }
 
     /**
-     * @return
-     *         #enabled(true)
+     * @return #enabled(true)
      */
     public FluentPanel enabled() {
         return this.enabled(true);
@@ -158,8 +156,7 @@ public final class FluentPanel {
     }
 
     /**
-     * @return
-     *         #visible(true)
+     * @return #visible(true)
      */
     public FluentPanel visible() {
         return this.visible(true);
@@ -178,8 +175,7 @@ public final class FluentPanel {
     }
 
     /**
-     * @return
-     *         #immediate(true)
+     * @return #immediate(true)
      */
     public FluentPanel immediate() {
         return this.immediate(true);
@@ -198,8 +194,7 @@ public final class FluentPanel {
     }
 
     /**
-     * @return
-     *         #readOnly(true)
+     * @return #readOnly(true)
      */
     public FluentPanel readOnly() {
         return this.readOnly(true);
@@ -243,4 +238,8 @@ public final class FluentPanel {
         return this;
     }
 
+    public FluentPanel sizeFull() {
+        panel.setSizeFull();
+        return this;
+    }
 }

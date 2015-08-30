@@ -16,6 +16,7 @@ import vaadincrm.App;
 import vaadincrm.Events;
 import vaadincrm.Resp;
 import vaadincrm.model.Query;
+import vaadincrm.service.SelectionService;
 import vaadincrm.util.FutureResult;
 import vaadincrm.util.VaadinUtil;
 
@@ -63,9 +64,8 @@ public class HouseTable {
 
     private final Table table = new Table();
     private final Map<Long, JsonObject> dataMap = new HashMap<>();
-    private Map<Long, JsonObject> areaMap = new HashMap<>();
-    private Map<Long, JsonObject> regionMap = new HashMap<>();
-    private volatile boolean ignoreSelectionChange = false;
+    private final Map<Long, JsonObject> areaMap = new HashMap<>();
+    private SelectionService selectionService = new SelectionService(dataMap, areaMap);
 
     public HouseTable(String params) {
         this.params = params;
@@ -217,7 +217,8 @@ public class HouseTable {
         final Long Zero = 0L;
         parentSelect.addItem(Zero);
         parentSelect.setItemCaption(Zero, "Select " + PARENT_LABEL);
-        areaMap = findAllAndPopulate(parentSelect, GET_PARENT_REQUEST);
+        areaMap.clear();
+        areaMap.putAll(findAllAndPopulate(parentSelect, GET_PARENT_REQUEST));
         parentSelect.setValue(house.getJsonObject(PARENT_FIELD).getLong(id));
         form.addComponent(parentSelect);
 
@@ -227,11 +228,11 @@ public class HouseTable {
 
         regionSelect.addItem(Zero);
         regionSelect.setItemCaption(Zero, "Select Region");
-        regionMap = findAllAndPopulate(regionSelect, Events.FIND_ALL_REGIONS);
+        findAllAndPopulate(regionSelect, Events.FIND_ALL_REGIONS);
         regionSelect.setValue(house.getJsonObject(PARENT_FIELD, new JsonObject()).getJsonObject(Query.region).getLong(id));
         form.addComponent(regionSelect);
 
-        onAreaRegionSelection(parentSelect, regionSelect);
+        selectionService.onAreaRegionSelection(parentSelect, regionSelect);
 
         final Button updateButton = new Button("Update");
         updateButton.setImmediate(true);
@@ -348,7 +349,7 @@ public class HouseTable {
         regionSelect.setValue(house.getJsonObject(PARENT_FIELD, new JsonObject()).getJsonObject(Query.region).getLong(id));
         form.addComponent(regionSelect);
 
-        onAreaRegionSelection(houseSelect, parentSelect, regionSelect);
+        selectionService.onAreaRegionSelection(houseSelect, parentSelect, regionSelect);
 
         final Button button = new Button("Move");
         button.addClickListener(e -> {
@@ -388,97 +389,6 @@ public class HouseTable {
 
         window.setVisible(true);
         UI.getCurrent().addWindow(window);
-    }
-
-    private void onAreaRegionSelection(NativeSelect houseSelect, NativeSelect areaSelect, NativeSelect regionSelect) {
-
-        regionSelect.addValueChangeListener(event -> {
-            if (!ignoreSelectionChange) {
-                try {
-                    ignoreSelectionChange = true;
-
-                    final Object selectedRegionId = event.getProperty().getValue();
-                    refillSelect(areaSelect, selectedRegionId);
-
-                    Collection<JsonObject> houses = selectedRegionId.equals(0L) ? dataMap.values() : dataMap.values().stream()
-                            .filter(j -> j.getJsonObject(Query.area, new JsonObject())
-                                    .getJsonObject(Query.region, new JsonObject())
-                                    .getLong(Query.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
-
-                    refillSelect2(houseSelect, houses);
-
-                } finally {
-                    ignoreSelectionChange = false;
-                }
-            }
-        });
-
-        areaSelect.addValueChangeListener(e -> {
-            if (!ignoreSelectionChange) {
-                try {
-                    ignoreSelectionChange = true;
-                    final Object selectedAreaId = e.getProperty().getValue();
-
-                    final Long regionId = selectedAreaId.equals(0L) ? 0L : areaMap.get(selectedAreaId).getJsonObject(Query.region, new JsonObject()).getLong(Query.id, 0L);
-                    regionSelect.setValue(regionId);
-
-                    Collection<JsonObject> houses = selectedAreaId.equals(0L) ? dataMap.values() : dataMap.values().stream()
-                            .filter(j -> j.getJsonObject(Query.area, new JsonObject())
-                                    .getLong(Query.id, 0L).equals(selectedAreaId)).collect(Collectors.toSet());
-
-                    refillSelect2(houseSelect, houses);
-
-                } finally {
-                    ignoreSelectionChange = false;
-                }
-            }
-        });
-
-
-        houseSelect.addValueChangeListener(e -> {
-            if (!ignoreSelectionChange) {
-                try {
-                    ignoreSelectionChange = true;
-
-                    final Object houseId = e.getProperty().getValue();
-
-                    final Long areaId = houseId.equals(0L) ? 0L : dataMap.get(houseId).getJsonObject(Query.area, new JsonObject()).getLong(Query.id, 0L);
-                    areaSelect.setValue(areaId);
-
-                    final Long regionId = houseId.equals(0L) ? 0L : dataMap.get(houseId)
-                            .getJsonObject(Query.area, new JsonObject())
-                            .getJsonObject(Query.region, new JsonObject())
-                            .getLong(Query.id, 0L);
-                    regionSelect.setValue(regionId);
-
-                } finally {
-                    ignoreSelectionChange = false;
-                }
-            }
-        });
-    }
-
-    private void refillSelect2(final NativeSelect houseSelect, final Collection<JsonObject> houses) {
-        refillSelect2(houseSelect, houses, "Select House");
-    }
-
-    private void refillSelect2(final NativeSelect houseSelect, final Collection<JsonObject> houses, String caption) {
-        final Long Zero = 0L;
-        houseSelect.clear();
-        houseSelect.removeAllItems();
-        houseSelect.addItem(Zero);
-        houseSelect.setItemCaption(Zero, caption);
-        houses.forEach(c -> {
-            final Long aId = c.getLong(Query.id);
-            houseSelect.addItem(aId);
-            houseSelect.setItemCaption(aId, c.getString(Query.name));
-        });
-        houseSelect.setValue(Zero);
-    }
-
-    private void refillSelect(NativeSelect areaSelect, Object selectedRegionId) {
-        Collection<JsonObject> areas = selectedRegionId.equals(0L) ? areaMap.values() : areaMap.values().stream().filter(j -> j.getJsonObject(Query.region, new JsonObject()).getLong(Query.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
-        refillSelect2(areaSelect, areas, "Select Area");
     }
 
     private void renameLocationForm(final JsonObject house, final Long locationId) {
@@ -567,7 +477,8 @@ public class HouseTable {
         final Long Zero = 0L;
         parentSelect.addItem(Zero);
         parentSelect.setItemCaption(Zero, "Select " + PARENT_LABEL);
-        areaMap = findAllAndPopulate(parentSelect, GET_PARENT_REQUEST);
+        areaMap.clear();
+        areaMap.putAll(findAllAndPopulate(parentSelect, GET_PARENT_REQUEST));
         parentSelect.setValue(Zero);
         form.addComponent(parentSelect);
 
@@ -577,11 +488,11 @@ public class HouseTable {
 
         regionSelect.addItem(Zero);
         regionSelect.setItemCaption(Zero, "Select Region");
-        regionMap = findAllAndPopulate(regionSelect, Events.FIND_ALL_REGIONS);
+        findAllAndPopulate(regionSelect, Events.FIND_ALL_REGIONS);
         regionSelect.setValue(Zero);
         form.addComponent(regionSelect);
 
-        onAreaRegionSelection(parentSelect, regionSelect);
+        selectionService.onAreaRegionSelection(parentSelect, regionSelect);
 
         final Button updateButton = new Button("Create");
         updateButton.setImmediate(true);
@@ -596,47 +507,6 @@ public class HouseTable {
         form.addComponent(updateButton);
 
         ui.addWindow(window);
-    }
-
-    private void onAreaRegionSelection(final NativeSelect areaSelect, final NativeSelect regionSelect) {
-        final Long Zero = 0L;
-        regionSelect.addValueChangeListener(event -> {
-            if (!ignoreSelectionChange) {
-                try {
-                    ignoreSelectionChange = true;
-                    final Object selectedRegionId = event.getProperty().getValue();
-                    Collection<JsonObject> areas = selectedRegionId.equals(0L) ? areaMap.values() : areaMap.values().stream().filter(j -> j.getJsonObject(Query.region, new JsonObject()).getLong(Query.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
-                    areaSelect.clear();
-                    areaSelect.removeAllItems();
-                    areaSelect.addItem(Zero);
-                    areaSelect.setItemCaption(Zero, "Select Area");
-                    areas.forEach(c -> {
-                        final Long aId = c.getLong(Query.id);
-                        areaSelect.addItem(aId);
-                        areaSelect.setItemCaption(aId, c.getString(Query.name));
-                    });
-                    areaSelect.setValue(Zero);
-                } finally {
-                    ignoreSelectionChange = false;
-                }
-            }
-        });
-
-        areaSelect.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent e) {
-                if (!ignoreSelectionChange) {
-                    try {
-                        ignoreSelectionChange = true;
-                        final Object selectedAreaId = e.getProperty().getValue();
-                        final Long regionId = selectedAreaId.equals(0L) ? 0L : areaMap.get(selectedAreaId).getJsonObject(Query.region, new JsonObject()).getLong(Query.id, 0L);
-                        regionSelect.setValue(regionId);
-                    } finally {
-                        ignoreSelectionChange = false;
-                    }
-                }
-            }
-        });
     }
 
     private Map<Long, JsonObject> findAllAndPopulate(final NativeSelect parentSelect, final String destination) throws ExecutionException, InterruptedException {

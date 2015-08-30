@@ -4,7 +4,8 @@ import com.vaadin.server.AbstractErrorMessage;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
-import io.crm.intfs.ConsumerInterface;
+import io.crm.intfs.*;
+import io.crm.intfs.Runnable;
 import io.crm.util.ExceptionUtil;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -41,11 +42,11 @@ final public class VaadinUtil {
         ExceptionUtil.logException(throwable);
     }
 
-    public static void showConfirmDialog(String title, Component dialogContent) {
-        showConfirmDialog(title, dialogContent, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT);
+    public static void showConfirmDialog(String title, Component dialogContent, ConsumerInterface<Window> onClose) {
+        showConfirmDialog(title, dialogContent, onClose, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT);
     }
 
-    public static void showConfirmDialog(String title, Component content, float width, float height) {
+    public static void showConfirmDialog(String title, Component content, ConsumerInterface<Window> onClose, float width, float height) {
         final Window window = new Window(title);
         window.setWidth(width, PIXELS);
         window.setHeight(height, PIXELS);
@@ -56,21 +57,29 @@ final public class VaadinUtil {
         root.setSizeFull();
         root.setMargin(true);
 
-        root.addComponents(content, okFooter(window));
+        root.addComponents(content, okFooter(window, onClose));
         root.setExpandRatio(content, 1);
 
         window.setContent(root);
         UI.getCurrent().addWindow(window);
     }
 
-    public static void showYesNoDialog(String title, Component content, ConsumerInterface<Boolean> anInterface,
-                                       float width, float height) {
-        showOkCancelDialog(title, content, anInterface, width, height, "Yes", "No");
+    public static void showYesNoDialog(String title, Component content, ConsumerInterface<Boolean> onComplete) {
+        showOkCancelDialog(title, content, onComplete, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT, "Yes", "No");
     }
 
-    public static void showOkCancelDialog(String title, Component content, ConsumerInterface<Boolean> anInterface,
+    public static void showOkCancelDialog(String title, Component content, ConsumerInterface<Boolean> onComplete) {
+        showOkCancelDialog(title, content, onComplete, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT, "Ok", "Cancel");
+    }
+
+    public static void showYesNoDialog(String title, Component content, ConsumerInterface<Boolean> onComplete,
+                                       float width, float height) {
+        showOkCancelDialog(title, content, onComplete, width, height, "Yes", "No");
+    }
+
+    public static void showOkCancelDialog(String title, Component content, ConsumerInterface<Boolean> onComplete,
                                           float width, float height) {
-        showOkCancelDialog(title, content, anInterface, width, height, "Ok", "Cancel");
+        showOkCancelDialog(title, content, onComplete, width, height, "Ok", "Cancel");
     }
 
     public static void showOkCancelDialog(String title, Component content, ConsumerInterface<Boolean> anInterface,
@@ -92,7 +101,7 @@ final public class VaadinUtil {
         UI.getCurrent().addWindow(window);
     }
 
-    private static Component okFooter(final Window window) {
+    private static Component okFooter(final Window window, io.crm.intfs.ConsumerInterface<Window> onClose) {
         HorizontalLayout footer = new HorizontalLayout();
         footer.setWidth("100%");
         footer.setSpacing(true);
@@ -103,7 +112,13 @@ final public class VaadinUtil {
 
         Button ok = new Button("OK");
         ok.addStyleName("primary");
-        ok.addClickListener(e -> window.close());
+        ok.addClickListener(e -> {
+            try {
+                onClose.accept(window);
+            } catch (Exception e1) {
+                VaadinUtil.handleError(e1);
+            }
+        });
 
         footer.addComponents(footerText, ok);
         footer.setExpandRatio(footerText, 1);

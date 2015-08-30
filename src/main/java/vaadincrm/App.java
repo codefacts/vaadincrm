@@ -26,7 +26,7 @@ public class App {
     public static final JsonObject config = new JsonObject(MainVerticle.loadConfig("/mongo-config.json"));
 
     public static void main(String... args) {
-        Vertx.clusteredVertx(new VertxOptions().setEventLoopPoolSize(1), new Handler<AsyncResult<Vertx>>() {
+        Vertx.clusteredVertx(new VertxOptions(), new Handler<AsyncResult<Vertx>>() {
             @Override
             public void handle(AsyncResult<Vertx> event) {
                 if (event.succeeded()) {
