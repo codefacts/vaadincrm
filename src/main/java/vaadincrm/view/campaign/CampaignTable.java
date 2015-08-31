@@ -9,6 +9,7 @@ import fluentui.FluentNativeSelect;
 import fluentui.FluentUI;
 import io.crm.FailureCode;
 import io.crm.mc;
+import io.crm.util.SimpleCounter;
 import io.crm.util.Touple1;
 import io.crm.util.Util;
 import io.vertx.core.AsyncResult;
@@ -35,13 +36,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.vaadin.ui.Notification.Type.TRAY_NOTIFICATION;
+import static com.vaadin.ui.Notification.show;
 import static fluentui.FluentButton.button;
+import static fluentui.FluentDateField.dateField;
+import static fluentui.FluentNativeSelect.nativeSelect;
+import static fluentui.FluentUI.textField;
 import static io.crm.util.Util.isEmptyOrNull;
 import static io.crm.util.Util.parseMongoDate;
 import static io.crm.util.Util.toMongoDate;
 import static vaadincrm.App.bus;
 import static vaadincrm.Events.CREATE_CAMPAIGN;
 import static vaadincrm.Events.FIND_ALL_BRANDS;
+import static vaadincrm.model.Campaign.*;
 import static vaadincrm.model.Model.id;
 import static vaadincrm.util.VaadinUtil.asMap;
 import static vaadincrm.util.VaadinUtil.handleError;
@@ -192,11 +198,11 @@ public class CampaignTable {
                                 .margin()
                                 .spacing()
                                 .addComponent(
-                                        mapBuilder.putAndReturn(Query.name, FluentUI.textField("Name", "")
+                                        mapBuilder.putAndReturn(Query.name, textField("Name", "")
                                                 .width("100%")
                                                 .required()
                                                 .get()),
-                                        mapBuilder.putAndReturn(Campaign.brand, FluentNativeSelect.nativeSelect("Select Brand")
+                                        mapBuilder.putAndReturn(Campaign.brand, nativeSelect("Select Brand")
                                                 .width("100%")
                                                 .required()
                                                 .options(QueryService.getService().findAll(FIND_ALL_BRANDS, new JsonObject())
@@ -204,17 +210,18 @@ public class CampaignTable {
                                                         .collect(Collectors.toList()))
                                                 .addItemWithCaption(0L, "Select Brand")
                                                 .value(0L)
+                                                .nullSelectionAllowed(false)
                                                 .get()),
-                                        mapBuilder.putAndReturn(Campaign.salaryStartDate, FluentDateField.dateField("Salary Start Date")
+                                        mapBuilder.putAndReturn(salaryStartDate, dateField("Salary Start Date")
                                                 .width("100%")
                                                 .get()),
-                                        mapBuilder.putAndReturn(Campaign.salaryEndDate, FluentDateField.dateField("Salary End Date")
+                                        mapBuilder.putAndReturn(salaryEndDate, dateField("Salary End Date")
                                                 .width("100%")
                                                 .get()),
-                                        mapBuilder.putAndReturn(Campaign.launchDate, FluentDateField.dateField("Launch Date")
+                                        mapBuilder.putAndReturn(launchDate, dateField("Launch Date")
                                                 .width("100%")
                                                 .get()),
-                                        mapBuilder.putAndReturn(Campaign.closeDate, FluentDateField.dateField("Close Date")
+                                        mapBuilder.putAndReturn(closeDate, dateField("Close Date")
                                                 .width("100%")
                                                 .get())
                                 )
@@ -240,7 +247,7 @@ public class CampaignTable {
                                                         return;
                                                     }
                                                     touple1.t1.getWindow().close();
-                                                    Notification.show("Campaign created successfully.", TRAY_NOTIFICATION);
+                                                    show("Campaign created successfully.", TRAY_NOTIFICATION);
                                                 });
                                             });
                                         })
@@ -277,13 +284,13 @@ public class CampaignTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
+                    show("Error: " + isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;
             }
             ui.access(() -> {
-                Notification.show(successMessage, TRAY_NOTIFICATION);
+                show(successMessage, TRAY_NOTIFICATION);
                 window.close();
             });
         };
@@ -296,10 +303,10 @@ public class CampaignTable {
             final Long campaignId = campaign.getLong(id);
             table.addItem(item(campaignId, campaign.getString(Query.name, ""),
                     campaign.getJsonObject(Query.brand, new JsonObject()).getString(Query.name, ""),
-                    parseMongoDate(campaign.getJsonObject(Campaign.salaryStartDate), null),
-                    parseMongoDate(campaign.getJsonObject(Campaign.salaryEndDate), null),
-                    parseMongoDate(campaign.getJsonObject(Campaign.launchDate), null),
-                    parseMongoDate(campaign.getJsonObject(Campaign.closeDate), null)), campaignId);
+                    parseMongoDate(campaign.getJsonObject(salaryStartDate), null),
+                    parseMongoDate(campaign.getJsonObject(salaryEndDate), null),
+                    parseMongoDate(campaign.getJsonObject(launchDate), null),
+                    parseMongoDate(campaign.getJsonObject(closeDate), null)), campaignId);
             campaignMap.put(campaignId, campaign);
         });
     }
