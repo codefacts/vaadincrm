@@ -3,6 +3,7 @@ package vaadincrm;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Resource;
 import vaadincrm.view.area.AreaView;
+import vaadincrm.view.campaign.CampaignView;
 import vaadincrm.view.region.RegionView;
 import vaadincrm.view.brand.BrandView;
 import vaadincrm.view.client.ClientView;
@@ -18,6 +19,8 @@ import vaadincrm.view.usertype.UserTypeView;
  * Created by someone on 28-Jul-2015.
  */
 public enum ViewType {
+
+    CAMPAIGN("collection/campaign", "Campaign", null, CampaignView.class, true, false),
 
     REGION("collection/region", "Region", null, RegionView.class, true, false),
 
