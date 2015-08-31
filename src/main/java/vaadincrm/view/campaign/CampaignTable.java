@@ -3,7 +3,14 @@ package vaadincrm.view.campaign;
 import com.vaadin.event.Action;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
+import fluentui.FluentDateField;
+import fluentui.FluentFormLayout;
+import fluentui.FluentNativeSelect;
+import fluentui.FluentUI;
 import io.crm.FailureCode;
+import io.crm.mc;
+import io.crm.util.Touple1;
+import io.crm.util.Util;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -13,36 +20,58 @@ import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
 import vaadincrm.Events;
 import vaadincrm.Resp;
+import vaadincrm.model.Campaign;
 import vaadincrm.model.Query;
+import vaadincrm.service.QueryService;
+import vaadincrm.util.MapBuilder;
+import vaadincrm.util.PopupWindow;
+import vaadincrm.util.PopupWindowBuilder;
 import vaadincrm.util.VaadinUtil;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.vaadin.ui.Notification.Type.TRAY_NOTIFICATION;
+import static fluentui.FluentButton.button;
 import static io.crm.util.Util.isEmptyOrNull;
+import static io.crm.util.Util.parseMongoDate;
+import static io.crm.util.Util.toMongoDate;
+import static vaadincrm.App.bus;
+import static vaadincrm.Events.CREATE_CAMPAIGN;
+import static vaadincrm.Events.FIND_ALL_BRANDS;
 import static vaadincrm.model.Model.id;
 import static vaadincrm.util.VaadinUtil.asMap;
+import static vaadincrm.util.VaadinUtil.handleError;
 
 /**
  * Created by someone on 30/08/2015.
  */
 public class CampaignTable {
-    private static final String collection = "Brand";
+    private static final String collection = "Campaign";
 
     private static final String ID_PROPERTY = "Id";
     private static final Object NAME_PROPERTY = "Name";
+    private static final Object BRAND_PROPERTY = "Brand";
+    private static final Object SALARY_START_DATE_PROPERTY = "Salary Start Date";
+    private static final Object SALARY_END_DATE_PROPERTY = "Salary End Date";
+    private static final Object LAUNCH_DATE_PROPERTY = "Launch Date";
+    private static final Object CLOSE_DATE_PROPERTY = "Close Date";
 
     private static final Action ADD_ITEM_ACTION = new Action("Add new " + collection);
     private static final Action EDIT_ITEM_ACTION = new Action("Edit this " + collection);
     private static final Action VIEW_ITEM_ACTION = new Action("View this " + collection);
-    private static final String UPDATE_REQUEST = Events.UPDATE_BRAND;
-    private static final String CREATE_REQUEST = Events.CREATE_BRAND;
+    private static final String UPDATE_REQUEST = Events.UPDATE_CAMPAIGN;
+    private static final String CREATE_REQUEST = CREATE_CAMPAIGN;
+    private static final String NEXT = "Next";
+    private static final String FINISH = "Finish";
 
     private String params;
 
     private final Table table = new Table();
-    private final Map<Long, JsonObject> dataMap = new HashMap<>();
+    private final Map<Long, JsonObject> campaignMap = new HashMap<>();
 
     public CampaignTable(String params) {
         this.params = params;
@@ -55,6 +84,12 @@ public class CampaignTable {
 
         table.addContainerProperty(ID_PROPERTY, Long.class, 0);
         table.addContainerProperty(NAME_PROPERTY, String.class, "");
+        table.addContainerProperty(BRAND_PROPERTY, String.class, "");
+
+        table.addContainerProperty(SALARY_START_DATE_PROPERTY, Date.class, null);
+        table.addContainerProperty(SALARY_END_DATE_PROPERTY, Date.class, null);
+        table.addContainerProperty(LAUNCH_DATE_PROPERTY, Date.class, null);
+        table.addContainerProperty(CLOSE_DATE_PROPERTY, Date.class, null);
 
         table.addActionHandler(new Action.Handler() {
             @Override
@@ -71,9 +106,9 @@ public class CampaignTable {
                 if (action == ADD_ITEM_ACTION) {
                     addItemForm();
                 } else if (action == EDIT_ITEM_ACTION) {
-                    editItemForm(dataMap.get(target));
+                    editItemForm(campaignMap.get(target));
                 } else if (action == VIEW_ITEM_ACTION) {
-                    viewItemForm(dataMap.get((Long) target));
+                    viewItemForm(campaignMap.get((Long) target));
                 }
             }
         });
@@ -134,7 +169,7 @@ public class CampaignTable {
         final UI ui = UI.getCurrent();
         updateButton.addClickListener(event -> {
             nameField.setComponentError(null);
-            App.bus.send(UPDATE_REQUEST, new JsonObject().put(id, area.getLong(id))
+            bus.send(UPDATE_REQUEST, new JsonObject().put(id, area.getLong(id))
                     .put(Query.name, nameField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
         });
         form.addComponent(updateButton);
@@ -143,34 +178,78 @@ public class CampaignTable {
     }
 
     private void addItemForm() {
-        final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
-        window.center();
-        final FormLayout form = new FormLayout();
-        window.setContent(form);
-
-        form.addStyleName("outlined");
-        form.setSizeFull();
-        form.setSpacing(true);
-        form.setMargin(true);
-
-        final TextField nameField = new TextField("Name", "");
-        nameField.setNullSettingAllowed(false);
-        nameField.setRequired(true);
-        form.addComponent(nameField);
-
-        final Button updateButton = new Button("Create");
-        updateButton.setImmediate(true);
         final UI ui = UI.getCurrent();
-        updateButton.addClickListener(event -> {
-            nameField.setComponentError(null);
-            App.bus.send(CREATE_REQUEST, new JsonObject()
-                    .put(Query.name, nameField.getValue()), respond(ui, window, nameField, collection + " created successfully."));
-        });
-        form.addComponent(updateButton);
+        final LinkedHashMap<String, Field> map = new LinkedHashMap<>();
+        final MapBuilder<String, Field> mapBuilder = new MapBuilder<>(map);
 
-        ui.addWindow(window);
+        final Touple1<PopupWindow> touple1 = new Touple1<>();
+
+        final PopupWindow popupWindow = touple1.t1 = PopupWindowBuilder.create("Create Campaign")
+                .setHeight(600, Sizeable.Unit.PIXELS)
+                .content(new PopupWindowBuilder.ContentBuilder()
+                        .addContent(FluentFormLayout.formLayout()
+                                .sizeFull()
+                                .margin()
+                                .spacing()
+                                .addComponent(
+                                        mapBuilder.putAndReturn(Query.name, FluentUI.textField("Name", "")
+                                                .width("100%")
+                                                .required()
+                                                .get()),
+                                        mapBuilder.putAndReturn(Campaign.brand, FluentNativeSelect.nativeSelect("Select Brand")
+                                                .width("100%")
+                                                .required()
+                                                .options(QueryService.getService().findAll(FIND_ALL_BRANDS, new JsonObject())
+                                                        .stream().map(j -> new JsonObject().put(Query.id, j.getLong(Query.id)).put(Query.caption, j.getString(Query.name)))
+                                                        .collect(Collectors.toList()))
+                                                .addItemWithCaption(0L, "Select Brand")
+                                                .value(0L)
+                                                .get()),
+                                        mapBuilder.putAndReturn(Campaign.salaryStartDate, FluentDateField.dateField("Salary Start Date")
+                                                .width("100%")
+                                                .get()),
+                                        mapBuilder.putAndReturn(Campaign.salaryEndDate, FluentDateField.dateField("Salary End Date")
+                                                .width("100%")
+                                                .get()),
+                                        mapBuilder.putAndReturn(Campaign.launchDate, FluentDateField.dateField("Launch Date")
+                                                .width("100%")
+                                                .get()),
+                                        mapBuilder.putAndReturn(Campaign.closeDate, FluentDateField.dateField("Close Date")
+                                                .width("100%")
+                                                .get())
+                                )
+                                .get())
+                        .footer(new PopupWindowBuilder.ContentBuilder.FooterBuilder("")
+                                .okButton(NEXT,
+                                        e -> {
+
+                                        })
+                                .addComponent(button(FINISH,
+                                        e -> {
+                                            final JsonObject campaign = new JsonObject();
+                                            map.forEach((k, v) -> {
+                                                final Object value = v.getValue();
+                                                if (value instanceof Date) {
+                                                    campaign.put(k, toMongoDate((Date) value, null));
+                                                } else campaign.put(k, value);
+                                            });
+                                            bus.send(CREATE_CAMPAIGN, campaign, r -> {
+                                                ui.access(() -> {
+                                                    if (r.failed()) {
+                                                        handleError(r.cause());
+                                                        return;
+                                                    }
+                                                    touple1.t1.getWindow().close();
+                                                    Notification.show("Campaign created successfully.", TRAY_NOTIFICATION);
+                                                });
+                                            });
+                                        })
+                                        .addStyleName("primary")
+                                        .get())
+                                .cancelButton()))
+                .build();
+
+        ui.addWindow(popupWindow.getWindow());
     }
 
     private Handler<AsyncResult<Message<Object>>> respond(final UI ui, final Window window, final TextField nameField, String successMessage) {
@@ -204,24 +283,29 @@ public class CampaignTable {
                 return;
             }
             ui.access(() -> {
-                Notification.show(successMessage, Notification.Type.TRAY_NOTIFICATION);
+                Notification.show(successMessage, TRAY_NOTIFICATION);
                 window.close();
             });
         };
     }
 
     public void populateData(final JsonArray data) {
-        dataMap.clear();
+        campaignMap.clear();
         data.forEach(v -> {
-            JsonObject area = (JsonObject) v;
-            final Long areaId = area.getLong(id);
-            table.addItem(item(areaId, area.getString(Query.name)), areaId);
-            dataMap.put(areaId, area);
+            JsonObject campaign = (JsonObject) v;
+            final Long campaignId = campaign.getLong(id);
+            table.addItem(item(campaignId, campaign.getString(Query.name, ""),
+                    campaign.getJsonObject(Query.brand, new JsonObject()).getString(Query.name, ""),
+                    parseMongoDate(campaign.getJsonObject(Campaign.salaryStartDate), null),
+                    parseMongoDate(campaign.getJsonObject(Campaign.salaryEndDate), null),
+                    parseMongoDate(campaign.getJsonObject(Campaign.launchDate), null),
+                    parseMongoDate(campaign.getJsonObject(Campaign.closeDate), null)), campaignId);
+            campaignMap.put(campaignId, campaign);
         });
     }
 
-    private Object[] item(final Long id, final String name) {
-        return new Object[]{id, name};
+    private Object[] item(final Long id, final String name, final String brand, final Date salaryStartDate, final Date salaryEndDate, final Date lauchDate, final Date closeDate) {
+        return new Object[]{id, name, brand, salaryStartDate, salaryEndDate, lauchDate, closeDate};
     }
 
     public Table getTable() {

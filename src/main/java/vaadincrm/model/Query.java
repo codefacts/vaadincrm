@@ -35,6 +35,8 @@ public class Query {
     public static final String userTypeId = concat(User.userType, id);
     public static final String count = "count";
     public static final String prefix = "prefix";
+    public static final String brand = "brand";
+    public static final String caption = "caption";
 
     public static final String concat(String... strings) {
         return String.join(".", strings);

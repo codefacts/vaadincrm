@@ -9,6 +9,10 @@ import java.util.Collection;
 
 public final class FluentUI {
 
+    public static FluentButton button() {
+        return FluentButton.button();
+    }
+
     public static FluentComboBox comboBox() {
         return FluentComboBox.comboBox();
     }

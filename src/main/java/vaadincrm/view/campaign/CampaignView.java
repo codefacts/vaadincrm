@@ -36,7 +36,7 @@ public class CampaignView extends Panel implements View {
         root.addComponent(collectionTable.getTable());
 
         final UI ui = UI.getCurrent();
-        App.bus.send(Events.FIND_ALL_BRANDS, null, (AsyncResult<Message<JsonArray>> r) -> {
+        App.bus.send(Events.FIND_ALL_CAMPAIGNS, null, (AsyncResult<Message<JsonArray>> r) -> {
             System.out.println("ui: " + ui);
             ui.access(() -> {
                 if (r.failed()) {

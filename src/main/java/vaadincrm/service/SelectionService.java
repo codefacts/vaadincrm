@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 public class SelectionService {
 
     private boolean ignoreSelectionChange = false;
-    private Map<Long, JsonObject> dataMap;
+    private Map<Long, JsonObject> houseMap;
     private Map<Long, JsonObject> areaMap;
 
     public SelectionService () {}
 
     public SelectionService(Map<Long, JsonObject> dataMap, Map<Long, JsonObject> areaMap) {
-        this.dataMap = dataMap;
+        this.houseMap = dataMap;
         this.areaMap = areaMap;
     }
 
@@ -31,8 +31,8 @@ public class SelectionService {
         return this;
     }
 
-    public SelectionService dataMap(HashMap<Long, JsonObject> dataMap) {
-        this.dataMap = dataMap;
+    public SelectionService houseMap(HashMap<Long, JsonObject> dataMap) {
+        this.houseMap = dataMap;
         return this;
     }
 
@@ -92,7 +92,7 @@ public class SelectionService {
                     final Object selectedRegionId = event.getProperty().getValue();
                     refillSelect(areaSelect, selectedRegionId);
 
-                    Collection<JsonObject> houses = selectedRegionId.equals(0L) ? dataMap.values() : dataMap.values().stream()
+                    Collection<JsonObject> houses = selectedRegionId.equals(0L) ? houseMap.values() : houseMap.values().stream()
                             .filter(j -> j.getJsonObject(Query.area, new JsonObject())
                                     .getJsonObject(Query.region, new JsonObject())
                                     .getLong(Query.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
@@ -114,7 +114,7 @@ public class SelectionService {
                     final Long regionId = selectedAreaId.equals(0L) ? 0L : areaMap.get(selectedAreaId).getJsonObject(Query.region, new JsonObject()).getLong(Query.id, 0L);
                     regionSelect.setValue(regionId);
 
-                    Collection<JsonObject> houses = selectedAreaId.equals(0L) ? dataMap.values() : dataMap.values().stream()
+                    Collection<JsonObject> houses = selectedAreaId.equals(0L) ? houseMap.values() : houseMap.values().stream()
                             .filter(j -> j.getJsonObject(Query.area, new JsonObject())
                                     .getLong(Query.id, 0L).equals(selectedAreaId)).collect(Collectors.toSet());
 
@@ -134,10 +134,10 @@ public class SelectionService {
 
                     final Object houseId = e.getProperty().getValue();
 
-                    final Long areaId = houseId.equals(0L) ? 0L : dataMap.get(houseId).getJsonObject(Query.area, new JsonObject()).getLong(Query.id, 0L);
+                    final Long areaId = houseId.equals(0L) ? 0L : houseMap.get(houseId).getJsonObject(Query.area, new JsonObject()).getLong(Query.id, 0L);
                     areaSelect.setValue(areaId);
 
-                    final Long regionId = houseId.equals(0L) ? 0L : dataMap.get(houseId)
+                    final Long regionId = houseId.equals(0L) ? 0L : houseMap.get(houseId)
                             .getJsonObject(Query.area, new JsonObject())
                             .getJsonObject(Query.region, new JsonObject())
                             .getLong(Query.id, 0L);
@@ -177,8 +177,8 @@ public class SelectionService {
         return ignoreSelectionChange;
     }
 
-    public Map<Long, JsonObject> getDataMap() {
-        return dataMap;
+    public Map<Long, JsonObject> getHouseMap() {
+        return houseMap;
     }
 
     public Map<Long, JsonObject> getAreaMap() {
