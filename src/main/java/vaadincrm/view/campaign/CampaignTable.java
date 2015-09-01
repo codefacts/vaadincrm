@@ -1,24 +1,16 @@
 package vaadincrm.view.campaign;
 
 import com.vaadin.event.Action;
-import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
-import fluentui.FluentDateField;
 import fluentui.FluentFormLayout;
-import fluentui.FluentNativeSelect;
-import fluentui.FluentUI;
 import io.crm.FailureCode;
-import io.crm.mc;
-import io.crm.util.SimpleCounter;
 import io.crm.util.Touple1;
-import io.crm.util.Util;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import vaadincrm.App;
 import vaadincrm.Events;
 import vaadincrm.Resp;
 import vaadincrm.model.Campaign;
@@ -35,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.vaadin.server.Sizeable.Unit.PIXELS;
 import static com.vaadin.ui.Notification.Type.TRAY_NOTIFICATION;
 import static com.vaadin.ui.Notification.show;
 import static fluentui.FluentButton.button;
@@ -73,6 +66,7 @@ public class CampaignTable {
     private static final String CREATE_REQUEST = CREATE_CAMPAIGN;
     private static final String NEXT = "Next";
     private static final String FINISH = "Finish";
+    private static final float WINDOW_CONTENT_HEIGHT = 490;
 
     private String params;
 
@@ -124,8 +118,8 @@ public class CampaignTable {
 
     private void viewItemForm(final JsonObject obj) {
         final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(100.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(400.0f, PIXELS);
+        window.setHeight(100.0f, PIXELS);
         window.center();
         final VerticalLayout content = new VerticalLayout();
         window.setContent(content);
@@ -154,8 +148,8 @@ public class CampaignTable {
 
     private void editItemForm(final JsonObject area) {
         final Window window = new Window(collection + " Details");
-        window.setWidth(400.0f, Sizeable.Unit.PIXELS);
-        window.setHeight(200.0f, Sizeable.Unit.PIXELS);
+        window.setWidth(400.0f, PIXELS);
+        window.setHeight(200.0f, PIXELS);
         window.center();
         final FormLayout form = new FormLayout();
         window.setContent(form);
@@ -191,7 +185,7 @@ public class CampaignTable {
         final Touple1<PopupWindow> touple1 = new Touple1<>();
 
         final PopupWindow popupWindow = touple1.t1 = PopupWindowBuilder.create("Create Campaign")
-                .setHeight(600, Sizeable.Unit.PIXELS)
+                .height(600, PIXELS)
                 .content(new PopupWindowBuilder.ContentBuilder()
                         .addContent(FluentFormLayout.formLayout()
                                 .sizeFull()
@@ -205,10 +199,10 @@ public class CampaignTable {
                                         mapBuilder.putAndReturn(Campaign.brand, nativeSelect("Select Brand")
                                                 .width("100%")
                                                 .required()
+                                                .addItemWithCaption(0L, "Select Brand")
                                                 .options(QueryService.getService().findAll(FIND_ALL_BRANDS, new JsonObject())
                                                         .stream().map(j -> new JsonObject().put(Query.id, j.getLong(Query.id)).put(Query.caption, j.getString(Query.name)))
                                                         .collect(Collectors.toList()))
-                                                .addItemWithCaption(0L, "Select Brand")
                                                 .value(0L)
                                                 .nullSelectionAllowed(false)
                                                 .get()),
@@ -229,6 +223,14 @@ public class CampaignTable {
                         .footer(new PopupWindowBuilder.ContentBuilder.FooterBuilder("")
                                 .okButton(NEXT,
                                         e -> {
+                                            touple1.t1.getContent().removeAllComponents();
+                                            final ConfigureCampaignTree configureTree = new ConfigureCampaignTree();
+                                            final TreeTable treeTable = configureTree.init();
+                                            treeTable.setWidth("100%");
+                                            touple1.t1.getContent().addComponent(treeTable);
+                                            configureTree.populateData(QueryService.getService().getDBTreeWithUsers());
+                                            touple1.t1.getFooter().removeComponent(touple1.t1.getOkButton());
+
 
                                         })
                                 .addComponent(button(FINISH,

@@ -36,4 +36,5 @@ final public class Events {
     public static final String FIND_ALL_CAMPAIGNS = "FIND_ALL_CAMPAIGNS";
     public static final String CREATE_CAMPAIGN = "CREATE_CAMPAIGN";
     public static final String UPDATE_CAMPAIGN = "UPDATE_CAMPAIGN";
+    public static final String GET_DB_TREE_WITH_USERS = "GET_DB_TREE_WITH_USERS";
 }

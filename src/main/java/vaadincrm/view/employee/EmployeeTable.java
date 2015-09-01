@@ -4,19 +4,16 @@ import com.vaadin.data.Property;
 import com.vaadin.event.Action;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
-import fluentui.FluentFormLayout;
 import io.crm.FailureCode;
 import io.crm.util.SimpleCounter;
 import io.crm.util.Touple1;
 import io.crm.util.Touple2;
-import io.crm.util.Util;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import vaadincrm.App;
 import vaadincrm.Events;
 import vaadincrm.Resp;
 import vaadincrm.model.EmployeeType;
@@ -258,7 +255,7 @@ final public class EmployeeTable {
 
         final Touple1<PopupWindow> touple1 = new Touple1<>();
         final PopupWindow popupWindow = touple1.t1 = PopupWindowBuilder.create("Create User")
-                .setHeight(600, PIXELS)
+                .height(600, PIXELS)
                 .content(new ContentBuilder()
                         .addContent(userBasicForm.t1)
                         .footer(new FooterBuilder("")

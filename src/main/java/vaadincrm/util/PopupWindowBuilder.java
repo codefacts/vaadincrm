@@ -18,13 +18,13 @@ public class PopupWindowBuilder {
         this.window = window;
     }
 
-    public PopupWindowBuilder setHeight(float height, Sizeable.Unit unit) {
+    public PopupWindowBuilder height(float height, Sizeable.Unit unit) {
         window.setHeight(height, unit);
         return this;
     }
 
-    public PopupWindowBuilder setWidth(float width, Sizeable.Unit unit) {
-        window.setHeight(width, unit);
+    public PopupWindowBuilder width(float width, Sizeable.Unit unit) {
+        window.setWidth(width, unit);
         return this;
     }
 
@@ -47,6 +47,7 @@ public class PopupWindowBuilder {
         ContentBuilder.FooterBuilder footerBuilder = contentBuilder.footerBuilder;
         if (contentBuilder.content == null) throw new IllegalArgumentException("Popup window content can't be null.");
         footerBuilder.footer.setExpandRatio(footerBuilder.footerTextLabel, 1);
+        footerBuilder.footer.setHeight(40, PIXELS);
         contentBuilder.root.addComponent(footerBuilder.footer);
         contentBuilder.root.setExpandRatio(contentBuilder.content, 1);
         window.setContent(contentBuilder.root);
@@ -78,6 +79,16 @@ public class PopupWindowBuilder {
 
         public ContentBuilder addContent(final Component component) {
             content.addComponent(component);
+            return this;
+        }
+
+        public ContentBuilder height(float height, Sizeable.Unit unit) {
+            content.setHeight(height, unit);
+            return this;
+        }
+
+        public ContentBuilder width(float width, Sizeable.Unit unit) {
+            content.setWidth(width, unit);
             return this;
         }
 
