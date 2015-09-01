@@ -2,16 +2,14 @@ package vaadincrm.view.usertype;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import io.crm.Events;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import vaadincrm.App;
-import vaadincrm.Events;
-import vaadincrm.Resp;
 import vaadincrm.util.VaadinUtil;
 
 import static com.vaadin.server.Responsive.makeResponsive;

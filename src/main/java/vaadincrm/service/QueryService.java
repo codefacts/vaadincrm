@@ -1,14 +1,13 @@
 package vaadincrm.service;
 
 import com.vaadin.ui.UI;
+import io.crm.Events;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
-import vaadincrm.Events;
 import vaadincrm.util.FutureResult;
-import vaadincrm.util.VaadinUtil;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,16 +1,13 @@
 package vaadincrm.view.employee;
 
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
+import io.crm.Events;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import vaadincrm.App;
-import vaadincrm.Events;
 
 import static com.vaadin.server.Responsive.makeResponsive;
 

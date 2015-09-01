@@ -1,11 +1,10 @@
 package vaadincrm.view.house;
 
-import com.vaadin.data.Property;
 import com.vaadin.event.Action;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.*;
+import io.crm.Events;
 import io.crm.FailureCode;
-import io.crm.util.ExceptionUtil;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -13,7 +12,6 @@ import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
-import vaadincrm.Events;
 import vaadincrm.Resp;
 import vaadincrm.model.Query;
 import vaadincrm.service.SelectionService;

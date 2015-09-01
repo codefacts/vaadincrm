@@ -37,6 +37,10 @@ public class Query {
     public static final String prefix = "prefix";
     public static final String brand = "brand";
     public static final String caption = "caption";
+    public static final String brSupervisors = "brSupervisors";
+    public static final String areaCoordinators = "areaCoordinators";
+    public static final String acCount = "acCount";
+    public static final String supCount = "supCount";
 
     public static final String concat(String... strings) {
         return String.join(".", strings);

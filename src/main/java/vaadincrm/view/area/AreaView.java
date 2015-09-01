@@ -2,22 +2,15 @@ package vaadincrm.view.area;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.Responsive;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinService;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import io.crm.Events;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
-import vaadincrm.Events;
-import vaadincrm.Resp;
 import vaadincrm.util.VaadinUtil;
-import vaadincrm.view.collection.CollectionTable;
 
 import static com.vaadin.server.Responsive.makeResponsive;
 

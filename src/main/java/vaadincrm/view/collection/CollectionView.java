@@ -4,12 +4,11 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.*;
+import io.crm.Events;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
-import vaadincrm.Events;
-import vaadincrm.Resp;
 import vaadincrm.util.VaadinUtil;
 
 /**
