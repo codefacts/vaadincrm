@@ -18,6 +18,8 @@
     <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-core:3.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:4.1.7.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:4.1.7.RELEASE" level="project" />
+    <orderEntry type="module" module-name="core" />
+    <orderEntry type="module" module-name="crm-query" />
     <orderEntry type="library" name="Maven: com.vaadin:vaadin-spring-boot-starter:1.0.0.beta3" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin:vaadin-spring-boot:1.0.0.beta3" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin:vaadin-spring:1.0.0.beta3" level="project" />

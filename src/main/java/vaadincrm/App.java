@@ -1,9 +1,6 @@
 package vaadincrm;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
+import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,6 +23,14 @@ public class App {
     public static final JsonObject config = new JsonObject(MainVerticle.loadConfig("/mongo-config.json"));
 
     public static void main(String... args) {
+        runAllModules();
+    }
+
+    public static void runAllModules(String... args) {
+        Vertx.vertx().deployVerticle(AllModuleStarterVerticle.class.getName());
+    }
+
+    public static void run() {
         Vertx.clusteredVertx(new VertxOptions(), new Handler<AsyncResult<Vertx>>() {
             @Override
             public void handle(AsyncResult<Vertx> event) {
