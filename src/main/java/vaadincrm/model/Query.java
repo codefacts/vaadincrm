@@ -41,6 +41,13 @@ public class Query {
     public static final String areaCoordinators = "areaCoordinators";
     public static final String acCount = "acCount";
     public static final String supCount = "supCount";
+    public static final String areas = "areas";
+    public static final String houses = "houses";
+    public static final String acs = "acs";
+    public static final String location = "location";
+    public static final String ac = "ac";
+    public static final String house = "house";
+    public static final String br = "br";
 
     public static final String concat(String... strings) {
         return String.join(".", strings);

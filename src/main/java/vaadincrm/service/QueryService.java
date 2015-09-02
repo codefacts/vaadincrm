@@ -55,25 +55,6 @@ final public class QueryService {
         return service;
     }
 
-    public JsonObject getDBTree() {
-        final FutureResult<JsonObject> futureResult = new FutureResult<>();
-
-        App.bus.send(Events.GET_DB_TREE, new JsonObject(), (AsyncResult<Message<JsonObject>> r) -> {
-            if (r.failed()) {
-                futureResult.signalError(r.cause());
-                return;
-            }
-
-            futureResult.signal(r.result().body());
-        });
-
-        try {
-            return futureResult.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public JsonObject getDBTreeWithUsers() {
         final FutureResult<JsonObject> futureResult = new FutureResult<>();
 

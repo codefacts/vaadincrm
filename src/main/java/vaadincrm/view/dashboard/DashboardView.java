@@ -94,7 +94,7 @@ public class DashboardView extends Panel implements View {
 
     private void retrieveAndPopulateData() {
         final UI ui = UI.getCurrent();
-        App.bus.send(Events.GET_DB_TREE, null, (AsyncResult<Message<JsonObject>> r) -> {
+        App.bus.send(Events.GET_DB_TREE_WITH_USERS, null, (AsyncResult<Message<JsonObject>> r) -> {
             if (r.failed()) {
                 throw new RuntimeException(r.cause());
             }
