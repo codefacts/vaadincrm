@@ -35,7 +35,7 @@ import static vaadincrm.util.VaadinUtil.errorMessage;
 /**
  * Created by someone on 16-Aug-2015.
  */
-public class LocationTable {
+final public class LocationTable {
     public static final String collection = "Location";
     public static final String GET_PARENT_REQUEST = Events.FIND_ALL_HOUSES;
 

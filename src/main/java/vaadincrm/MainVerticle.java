@@ -18,7 +18,7 @@ import java.util.ArrayList;
 /**
  * Created by someone on 26-Jul-2015.
  */
-public class MainVerticle extends AbstractVerticle {
+final public class MainVerticle extends AbstractVerticle {
     @Override
     public void start(Future<Void> startFuture) throws Exception {
         App.bus = getVertx().eventBus();

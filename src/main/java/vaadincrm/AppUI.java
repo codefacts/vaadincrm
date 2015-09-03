@@ -23,7 +23,7 @@ import java.util.Locale;
 @Theme("valo")
 @SpringUI(path = "")
 @Push
-public class AppUI extends UI {
+final public class AppUI extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {

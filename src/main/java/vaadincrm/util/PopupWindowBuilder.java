@@ -8,7 +8,7 @@ import static com.vaadin.server.Sizeable.Unit.PIXELS;
 /**
  * Created by someone on 27/08/2015.
  */
-public class PopupWindowBuilder {
+final public class PopupWindowBuilder {
     private static final float DEFAULT_DIALOG_WINDOW_WIDTH = VaadinUtil.DEFAULT_DIALOG_WINDOW_WIDTH;
     private static final float DEFAULT_DIALOG_WINDOW_HEIGHT = VaadinUtil.DEFAULT_DIALOG_WINDOW_HEIGHT;
     private final Window window;

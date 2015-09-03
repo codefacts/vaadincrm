@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by someone on 13-Jul-2015.
  */
 @SpringBootApplication
-public class App {
+final public class App {
     public static final String home = "localhost";
     public static final String office = "192.168.100.203";
     public static EventBus bus;

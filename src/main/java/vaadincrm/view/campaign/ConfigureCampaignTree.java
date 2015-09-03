@@ -14,12 +14,12 @@ import java.util.Collections;
 import java.util.function.BiFunction;
 
 import static vaadincrm.model.Model.id;
-import static vaadincrm.util.VaadinUtil.getOrDefault;
+import static io.crm.util.Util.getOrDefault;
 
 /**
  * Created by someone on 01/09/2015.
  */
-public class ConfigureCampaignTree {
+final public class ConfigureCampaignTree {
     private static final Object NAME_PROPERTY = "Name";
     private static final String ID_PROPERTY = "Id";
 //    private static final String CHILD_COUNT_PROPERTY = "Child Count";
@@ -433,23 +433,23 @@ public class ConfigureCampaignTree {
         }
     }
 
-    private void traverseRecursivelyEagerly(final Object target, final Object parent, BiFunction<Object, Object, Boolean> traverser) {
+    private void traverseRecursivelyEagerly(final Object target, final Object parent, final BiFunction<Object, Object, Boolean> traverser) {
         final Collection<?> children = getOrDefault(treeTable.getChildren(target), Collections.emptyList());
         if (children.size() <= 0) {
             return;
         }
-        for (Object child : children.toArray()) {
+        for (final Object child : children.toArray()) {
             if (!traverser.apply(child, target)) return;
             traverseRecursivelyEagerly(child, target, traverser);
         }
     }
 
-    private void traverseRecursivelyLazy(final Object target, final Object parent, BiFunction<Object, Object, Boolean> traverser) {
+    private void traverseRecursivelyLazy(final Object target, final Object parent, final BiFunction<Object, Object, Boolean> traverser) {
         final Collection<?> children = getOrDefault(treeTable.getChildren(target), Collections.emptyList());
         if (children.size() <= 0) {
             return;
         }
-        for (Object child : children.toArray()) {
+        for (final Object child : children.toArray()) {
             traverseRecursivelyLazy(child, target, traverser);
             if (!traverser.apply(child, target)) return;
         }

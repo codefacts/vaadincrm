@@ -17,7 +17,7 @@ import vaadincrm.event.DashboardEventBus;
 import vaadincrm.model.Query;
 import vaadincrm.view.campaign.ConfigureCampaignTree;
 
-public class DashboardView extends Panel implements View {
+final public class DashboardView extends Panel implements View {
     public static final String TITLE_ID = "dashboard-title";
 
     private Label titleLabel;

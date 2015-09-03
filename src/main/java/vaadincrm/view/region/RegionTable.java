@@ -27,7 +27,7 @@ import static vaadincrm.util.VaadinUtil.asMap;
 /**
  * Created by someone on 16-Aug-2015.
  */
-public class RegionTable {
+final public class RegionTable {
     private static final String collection = "Region";
 
     private static final String ID_PROPERTY = "Id";

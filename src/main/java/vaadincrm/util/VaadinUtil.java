@@ -31,26 +31,22 @@ final public class VaadinUtil {
         return (Map<String, Object>) o;
     }
 
-    public static ErrorMessage errorMessage(String errorMessages) {
+    public static ErrorMessage errorMessage(final String errorMessages) {
         System.out.println("Error Messages: " + errorMessages);
         return new AbstractErrorMessage(errorMessages) {
         };
     }
 
-    public static final <T> T getOrDefault(final T src, final T defaultValue) {
-        return src == null ? defaultValue : src;
-    }
-
-    public static void handleError(Throwable throwable) {
+    public static void handleError(final Throwable throwable) {
         Notification.show(Resp.server_error_pleasy_try_again_later, Notification.Type.ERROR_MESSAGE);
         ExceptionUtil.logException(throwable);
     }
 
-    public static void showConfirmDialog(String title, Component dialogContent, ConsumerInterface<Window> onClose) {
+    public static void showConfirmDialog(final String title, final Component dialogContent, final ConsumerInterface<Window> onClose) {
         showConfirmDialog(title, dialogContent, onClose, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT);
     }
 
-    public static void showConfirmDialog(String title, Component content, ConsumerInterface<Window> onClose, float width, float height) {
+    public static void showConfirmDialog(final String title, final Component content, final ConsumerInterface<Window> onClose, final float width, final float height) {
         final Window window = new Window(title);
         window.setWidth(width, PIXELS);
         window.setHeight(height, PIXELS);
@@ -68,26 +64,26 @@ final public class VaadinUtil {
         UI.getCurrent().addWindow(window);
     }
 
-    public static void showYesNoDialog(String title, Component content, ConsumerInterface<Boolean> onComplete) {
+    public static void showYesNoDialog(final String title, final Component content, final ConsumerInterface<Boolean> onComplete) {
         showOkCancelDialog(title, content, onComplete, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT, "Yes", "No");
     }
 
-    public static void showOkCancelDialog(String title, Component content, ConsumerInterface<Boolean> onComplete) {
+    public static void showOkCancelDialog(final String title, final Component content, final ConsumerInterface<Boolean> onComplete) {
         showOkCancelDialog(title, content, onComplete, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT, "Ok", "Cancel");
     }
 
-    public static void showYesNoDialog(String title, Component content, ConsumerInterface<Boolean> onComplete,
-                                       float width, float height) {
+    public static void showYesNoDialog(final String title, final Component content, final ConsumerInterface<Boolean> onComplete,
+                                       final float width, final float height) {
         showOkCancelDialog(title, content, onComplete, width, height, "Yes", "No");
     }
 
-    public static void showOkCancelDialog(String title, Component content, ConsumerInterface<Boolean> onComplete,
-                                          float width, float height) {
+    public static void showOkCancelDialog(final String title, final Component content, final ConsumerInterface<Boolean> onComplete,
+                                          final float width, final float height) {
         showOkCancelDialog(title, content, onComplete, width, height, "Ok", "Cancel");
     }
 
-    public static void showOkCancelDialog(String title, Component content, ConsumerInterface<Boolean> anInterface,
-                                          float width, float height, String okButtonText, String cancelButtonText) {
+    public static void showOkCancelDialog(final String title, final Component content, final ConsumerInterface<Boolean> anInterface,
+                                          final float width, final float height, final String okButtonText, final String cancelButtonText) {
         final Window window = new Window(title);
         window.setWidth(width, PIXELS);
         window.setHeight(height, PIXELS);
@@ -105,7 +101,7 @@ final public class VaadinUtil {
         UI.getCurrent().addWindow(window);
     }
 
-    private static Component okFooter(final Window window, io.crm.intfs.ConsumerInterface<Window> onClose) {
+    private static Component okFooter(final Window window, final ConsumerInterface<Window> onClose) {
         HorizontalLayout footer = new HorizontalLayout();
         footer.setWidth("100%");
         footer.setSpacing(true);
@@ -129,7 +125,7 @@ final public class VaadinUtil {
         return footer;
     }
 
-    public static Component okCancelFooter(String okButtonText, String cancelButtonText, ConsumerInterface<Boolean> onComplete) {
+    public static Component okCancelFooter(final String okButtonText, final String cancelButtonText, final ConsumerInterface<Boolean> onComplete) {
         HorizontalLayout footer = new HorizontalLayout();
         footer.setWidth("100%");
         footer.setSpacing(true);
@@ -162,7 +158,7 @@ final public class VaadinUtil {
         return footer;
     }
 
-    public static String p(String text) {
+    public static String p(final String text) {
         return String.format("<p>%s</p>", text);
     }
 }

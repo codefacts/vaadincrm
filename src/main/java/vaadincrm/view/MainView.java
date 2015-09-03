@@ -5,7 +5,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 import vaadincrm.DashboardNavigator;
 
-public class MainView extends HorizontalLayout {
+final public class MainView extends HorizontalLayout {
 
     public MainView() {
         setSizeFull();

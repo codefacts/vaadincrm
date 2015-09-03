@@ -5,7 +5,7 @@ import com.vaadin.ui.*;
 /**
  * Created by someone on 27/08/2015.
  */
-public class PopupWindow {
+final public class PopupWindow {
     private final Window window;
     private final VerticalLayout content;
     private final HorizontalLayout footer;

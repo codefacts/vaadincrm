@@ -9,7 +9,7 @@ import static io.crm.util.ExceptionUtil.toRuntime;
 /**
  * Created by someone on 19/08/2015.
  */
-public class Resp {
+final public class Resp {
 
     public static final String value_is_invalid = "Value is invalid.";
     public static final String _updated_successfully = " updated successfully.";

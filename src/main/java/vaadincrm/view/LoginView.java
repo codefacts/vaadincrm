@@ -9,7 +9,7 @@ import vaadincrm.event.DashboardEventBus;
 import vaadincrm.event.UserLoginRequestedEvent;
 
 @SuppressWarnings("serial")
-public class LoginView extends VerticalLayout {
+final public class LoginView extends VerticalLayout {
 
     public LoginView() {
         setSizeFull();

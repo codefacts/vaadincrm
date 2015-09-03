@@ -27,7 +27,7 @@ import static vaadincrm.util.VaadinUtil.asMap;
 /**
  * Created by someone on 20/08/2015.
  */
-public class UserTypeTable {
+final public class UserTypeTable {
     private static final String collection = "UserType";
 
     private static final String ID_PROPERTY = "Id";

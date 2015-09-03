@@ -27,7 +27,7 @@ import static vaadincrm.util.VaadinUtil.asMap;
 /**
  * Created by someone on 16-Aug-2015.
  */
-public class BrandTable {
+final public class BrandTable {
     private static final String collection = "Brand";
 
     private static final String ID_PROPERTY = "Id";

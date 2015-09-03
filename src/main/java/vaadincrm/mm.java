@@ -3,7 +3,7 @@ package vaadincrm;
 /**
  * Created by someone on 03-Aug-2015.
  */
-public class mm {
+final public class mm {
     public static final String insert = "insert";
     public static String documents = "documents";
     public static String dropDatabase = "dropDatabase";

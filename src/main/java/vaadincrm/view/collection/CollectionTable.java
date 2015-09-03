@@ -12,7 +12,7 @@ import vaadincrm.model.Query;
 /**
  * Created by someone on 16-Aug-2015.
  */
-public class CollectionTable {
+final public class CollectionTable {
     private final Table table = new Table();
     private static final Object NAME_PROPERTY = "Collection Name";
     private static final String COUNT_PROPERTY = "Element Count";

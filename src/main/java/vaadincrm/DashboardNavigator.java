@@ -9,7 +9,7 @@ import vaadincrm.event.CloseOpenWindowsEvent;
 import vaadincrm.event.DashboardEventBus;
 import vaadincrm.event.PostViewChangeEvent;
 
-public class DashboardNavigator extends Navigator {
+final public class DashboardNavigator extends Navigator {
 
     private static final ViewType ERROR_VIEW = ViewType.DASHBOARD;
     private ViewProvider errorViewProvider;

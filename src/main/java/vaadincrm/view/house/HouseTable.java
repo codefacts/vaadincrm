@@ -27,7 +27,7 @@ import static io.crm.util.ExceptionUtil.toRuntime;
 import static vaadincrm.Resp.*;
 import static vaadincrm.model.Model.id;
 
-public class HouseTable {
+final public class HouseTable {
     public static final String collection = "Distribution House";
     public static final String GET_PARENT_REQUEST = Events.FIND_ALL_AREAS;
 

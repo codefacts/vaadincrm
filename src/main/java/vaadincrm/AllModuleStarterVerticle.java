@@ -6,7 +6,7 @@ import io.vertx.core.Future;
 /**
  * Created by someone on 02/09/2015.
  */
-public class AllModuleStarterVerticle extends AbstractVerticle {
+final public class AllModuleStarterVerticle extends AbstractVerticle {
     @Override
     public void start(Future<Void> startFuture) throws Exception {
         getVertx().deployVerticle(MainVerticle.class.getName());

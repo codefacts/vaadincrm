@@ -48,7 +48,7 @@ import static vaadincrm.util.VaadinUtil.handleError;
 /**
  * Created by someone on 30/08/2015.
  */
-public class CampaignTable {
+final public class CampaignTable {
     private static final String collection = "Campaign";
 
     private static final String ID_PROPERTY = "Id";

@@ -35,7 +35,7 @@ import static vaadincrm.util.VaadinUtil.errorMessage;
 /**
  * Created by someone on 16-Aug-2015.
  */
-public class AreaTable {
+final public class AreaTable {
     public static final String collection = "Area";
     public static final String GET_PARENT_REQUEST = Events.FIND_ALL_REGIONS;
 
