@@ -220,7 +220,7 @@ final public class ConfigureCampaignTree {
                 treeTable.setParent(acListItemId, areaItemId);
                 treeTable.setCollapsed(acListItemId, false);
 
-                for (Object acObj : area.getJsonArray(Query.areaCoordinators, emptyArray)) {
+                for (final Object acObj : area.getJsonArray(Query.areaCoordinators, emptyArray)) {
                     JsonObject ac = (JsonObject) acObj;
                     final Long acId = ac.getLong(id);
                     final Object acItemId = treeTable.addItem(item(Query.ac + "-" + acId, ac.getString(User.name), ""),
@@ -361,9 +361,9 @@ final public class ConfigureCampaignTree {
                 if (checkIfEmpty(getOrDefault(treeTable.getChildren(parent), Collections.EMPTY_LIST))) {
                     setCheckboxValue(checkBox, false);
                 } else {
-                    if (!parent.startsWith(Query._all)) {
-                        setCheckboxValue(checkBox, true);
-                    }
+//                    if (!parent.startsWith(Query._all)) {
+                    setCheckboxValue(checkBox, true);
+//                    }
                 }
             }
         } finally {
@@ -372,7 +372,7 @@ final public class ConfigureCampaignTree {
     }
 
     private boolean checkIfEmpty(final Collection<Object> children) {
-        for (Object childObj : children) {
+        for (final Object childObj : children) {
 
             final String child = (String) childObj;
 
@@ -392,9 +392,9 @@ final public class ConfigureCampaignTree {
             if (empty) {
                 setCheckboxValue(checkBox, false);
             } else {
-                if (!child.startsWith(Query._all)) {
-                    setCheckboxValue(checkBox, true);
-                }
+//                if (!child.startsWith(Query._all)) {
+                setCheckboxValue(checkBox, true);
+//                }
                 return false;
             }
         }
@@ -408,7 +408,7 @@ final public class ConfigureCampaignTree {
                 || childObj.startsWith(Query.location);
     }
 
-    private CheckBox checkBoxAt(Object parent) {
+    private CheckBox checkBoxAt(final Object parent) {
         return (CheckBox) treeTable.getItem(parent).getItemProperty(NAME_PROPERTY).getValue();
     }
 
@@ -423,7 +423,7 @@ final public class ConfigureCampaignTree {
         }
     }
 
-    private void setCheckboxValue(CheckBox checkBox, boolean value) {
+    private void setCheckboxValue(final CheckBox checkBox, final boolean value) {
         boolean v = checkBox.isReadOnly();
         try {
             checkBox.setReadOnly(false);
