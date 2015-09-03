@@ -48,6 +48,14 @@ public class Query {
     public static final String ac = "ac";
     public static final String house = "house";
     public static final String br = "br";
+    public static final String _all = "_all";
+    public static final String _all_region_area_id = "_all_region_area_id";
+    public static final String _all_house_sup_id = "_all_house_sup_id";
+    public static final String _all_house_br_id = "_all_house_br_id";
+    public static final String _all_house_location_id = "_all_house_location_id";
+
+    public static final String _all_area_house_id = "_all_area_house_id";
+    public static final String _all_area_ac_id = "_all_area_ac_id";
 
     public static final String concat(String... strings) {
         return String.join(".", strings);

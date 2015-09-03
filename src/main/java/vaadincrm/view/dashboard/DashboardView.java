@@ -15,6 +15,7 @@ import vaadincrm.App;
 import vaadincrm.event.CloseOpenWindowsEvent;
 import vaadincrm.event.DashboardEventBus;
 import vaadincrm.model.Query;
+import vaadincrm.view.campaign.ConfigureCampaignTree;
 
 public class DashboardView extends Panel implements View {
     public static final String TITLE_ID = "dashboard-title";
@@ -22,7 +23,7 @@ public class DashboardView extends Panel implements View {
     private Label titleLabel;
     private CssLayout dashboardPanels;
     private final VerticalLayout root;
-    private DBTreeTable dbTreeTable;
+    private ConfigureCampaignTree dbTreeTable;
 
     private Button regionCountButton;
     private Button areaCountButton;
@@ -86,7 +87,7 @@ public class DashboardView extends Panel implements View {
         dashboardPanels.addStyleName("dashboard-panels");
         Responsive.makeResponsive(dashboardPanels);
 
-        dbTreeTable = new DBTreeTable();
+        dbTreeTable = new ConfigureCampaignTree();
         dashboardPanels.addComponent(dbTreeTable.init());
 
         return dashboardPanels;

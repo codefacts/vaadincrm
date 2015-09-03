@@ -37,6 +37,10 @@ final public class VaadinUtil {
         };
     }
 
+    public static final <T> T getOrDefault(final T src, final T defaultValue) {
+        return src == null ? defaultValue : src;
+    }
+
     public static void handleError(Throwable throwable) {
         Notification.show(Resp.server_error_pleasy_try_again_later, Notification.Type.ERROR_MESSAGE);
         ExceptionUtil.logException(throwable);
