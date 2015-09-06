@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.server.Sizeable.Unit.PIXELS;
 import static com.vaadin.ui.Notification.Type.TRAY_NOTIFICATION;
-import static com.vaadin.ui.Notification.show;
 import static fluentui.FluentButton.button;
 import static fluentui.FluentDateField.dateField;
 import static fluentui.FluentNativeSelect.nativeSelect;
@@ -72,6 +71,7 @@ final public class CampaignTable {
 
     private final Table table = new Table();
     private final Map<Long, JsonObject> campaignMap = new HashMap<>();
+    private ConfigureCampaignTree configureTree;
 
     public CampaignTable(String params) {
         this.params = params;
@@ -224,7 +224,7 @@ final public class CampaignTable {
                                 .okButton(NEXT,
                                         e -> {
                                             touple1.t1.getContent().removeAllComponents();
-                                            final ConfigureCampaignTree configureTree = new ConfigureCampaignTree();
+                                            configureTree = new ConfigureCampaignTree();
                                             final TreeTable treeTable = configureTree.init();
                                             treeTable.setWidth("100%");
                                             touple1.t1.getContent().addComponent(treeTable);
@@ -242,6 +242,8 @@ final public class CampaignTable {
                                                     campaign.put(k, toMongoDate((Date) value, null));
                                                 } else campaign.put(k, value);
                                             });
+                                            System.out.println("\n\n" + configureTree.getTree().encodePrettily() + "\n\n");
+                                            campaign.put(Query.tree, configureTree.getTree());
                                             bus.send(CREATE_CAMPAIGN, campaign, r -> {
                                                 ui.access(() -> {
                                                     if (r.failed()) {
@@ -249,7 +251,7 @@ final public class CampaignTable {
                                                         return;
                                                     }
                                                     touple1.t1.getWindow().close();
-                                                    show("Campaign created successfully.", TRAY_NOTIFICATION);
+                                                    Notification.show("Campaign created successfully.", TRAY_NOTIFICATION);
                                                 });
                                             });
                                         })
@@ -286,13 +288,13 @@ final public class CampaignTable {
                     }
                 }
                 ui.access(() -> {
-                    show("Error: " + isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;
             }
             ui.access(() -> {
-                show(successMessage, TRAY_NOTIFICATION);
+                Notification.show(successMessage, TRAY_NOTIFICATION);
                 window.close();
             });
         };

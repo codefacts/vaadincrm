@@ -11,6 +11,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.model.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.BiFunction;
@@ -110,6 +111,102 @@ final public class ConfigureCampaignTree {
         return treeTable;
     }
 
+    public JsonObject getTree() {
+        final JsonObject root = new JsonObject();
+        for (Object region : getOrDefault(treeTable.rootItemIds(), Collections.EMPTY_LIST)) {
+            if (!checkBoxAt(region).getValue()) continue;
+
+            Long regionId = getId((String) region, Query.region);
+            final JsonObject regionJson = new JsonObject()
+                    .put(Query.id, regionId);
+
+            final JsonObject areaListJson = new JsonObject();
+            getOrDefault(treeTable.getChildren(region), Collections.EMPTY_LIST).forEach(areaList -> {
+
+                for (Object area : getOrDefault(treeTable.getChildren(areaList), Collections.EMPTY_LIST)) {
+                    if (!checkBoxAt(area).getValue()) continue;
+
+                    final Long areaId = getId((String) area, Query.area);
+                    final JsonObject areaJson = new JsonObject().put(Query.id, areaId);
+
+                    final JsonObject houseListJson = new JsonObject();
+                    final JsonObject acListJson = new JsonObject();
+                    getOrDefault(treeTable.getChildren(area), Collections.EMPTY_LIST).forEach(houseAcList -> {
+
+                        if (houseAcList.toString().startsWith(Query._all_area_house_id)) {
+
+                            for (Object house : getOrDefault(treeTable.getChildren(houseAcList), Collections.EMPTY_LIST)) {
+                                if (!checkBoxAt(house).getValue()) continue;
+
+                                final Long houseId = getId((String) house, Query.house);
+                                final JsonObject houseJson = new JsonObject().put(Query.id, houseId);
+
+                                final JsonObject brListJson = new JsonObject();
+                                final JsonObject locationListJson = new JsonObject();
+                                final JsonObject supListJson = new JsonObject();
+
+                                getOrDefault(treeTable.getChildren(house), Collections.EMPTY_LIST).forEach(brLocSupList -> {
+
+                                    if (brLocSupList.toString().startsWith(Query._all_house_br_id)) {
+                                        for (Object brId : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
+                                            if (!checkBoxAt(brId).getValue()) continue;
+                                            final JsonObject brJson = new JsonObject().put(Query.id, brId);
+                                            brListJson.put(brId.toString(), brJson);
+                                        }
+                                    }
+
+                                    if (brLocSupList.toString().startsWith(Query._all_house_location_id)) {
+                                        for (Object location : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
+                                            if (!checkBoxAt(location).getValue()) continue;
+                                            final Long locId = getId(location.toString(), Query.location);
+                                            final JsonObject locJson = new JsonObject().put(Query.id, locId);
+                                            locationListJson.put(locId.toString(), locJson);
+                                        }
+                                    }
+
+                                    if (brLocSupList.toString().startsWith(Query._all_house_sup_id)) {
+                                        for (Object supId : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
+                                            if (!checkBoxAt(supId).getValue()) continue;
+                                            final JsonObject supJson = new JsonObject().put(Query.id, supId);
+                                            supListJson.put(supId.toString(), supJson);
+                                        }
+                                    }
+                                });
+
+                                houseJson.put(Query.brSupervisors, supListJson);
+                                houseJson.put(mc.locations.name(), locationListJson);
+                                houseJson.put(Query.brs, brListJson);
+
+                                houseListJson.put(houseId.toString(), houseJson);
+                            }
+                        } else if (houseAcList.toString().startsWith(Query._all_area_ac_id)) {
+
+                            for (Object acId : getOrDefault(treeTable.getChildren(houseAcList), Collections.EMPTY_LIST)) {
+                                if (!checkBoxAt(acId).getValue()) continue;
+
+                                final JsonObject acJson = new JsonObject().put(Query.id, acId);
+                                acListJson.put(acId.toString(), acJson);
+                            }
+                        }
+                    });
+
+                    areaJson.put(mc.distribution_houses.name(), houseListJson);
+                    areaJson.put(Query.areaCoordinators, acListJson);
+
+                    areaListJson.put(areaId.toString(), areaJson);
+                }
+            });
+
+            regionJson.put(mc.areas.name(), areaListJson);
+            root.put(regionId.toString(), regionJson);
+        }
+        return root;
+    }
+
+    private Long getId(final String idStr, final String prefix) {
+        return Long.parseLong(idStr.substring(prefix.length() + 1));
+    }
+
     private void selectAllRecursively(final Object target, final boolean value) {
         if (!recursiveRunning) {
             try {
@@ -188,9 +285,9 @@ final public class ConfigureCampaignTree {
 
                 for (final Object acObj : area.getJsonArray(Query.areaCoordinators, emptyArray)) {
                     JsonObject ac = (JsonObject) acObj;
-                    final Long acId = ac.getLong(id);
-                    final Object acItemId = treeTable.addItem(item(Query.ac + "-" + acId, ac.getString(User.name), ""),
-                            Query.ac + "-" + acId);
+                    final String acId = ac.getString(User.userId);
+                    final Object acItemId = treeTable.addItem(item(acId, ac.getString(User.name), ""),
+                            acId);
                     treeTable.setParent(acItemId, acListItemId);
                 }
 

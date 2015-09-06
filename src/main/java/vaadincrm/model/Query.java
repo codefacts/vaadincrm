@@ -56,6 +56,7 @@ public class Query {
 
     public static final String _all_area_house_id = "_all_area_house_id";
     public static final String _all_area_ac_id = "_all_area_ac_id";
+    public static final String tree = "tree";
 
     public static final String concat(String... strings) {
         return String.join(".", strings);
