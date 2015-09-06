@@ -5,6 +5,7 @@ import com.vaadin.event.Action;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.TreeTable;
 import io.crm.mc;
+import io.crm.util.Touple2Boolean;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.model.*;
@@ -25,23 +26,14 @@ final public class ConfigureCampaignTree {
 //    private static final String CHILD_COUNT_PROPERTY = "Child Count";
 
     private static final Action SELECT_ALL_RECURSIVELY = new Action("Select recursively");
-    private static final Action SELECT_ALL_ACS = new Action("Select all area coordinators only");
-    private static final Action SELECT_ALL_BRS = new Action("Select all BRS only");
-    private static final Action SELECT_ALL_LOCATIONS = new Action("Select all locations only");
-    private static final Action SELECT_ALL_BR_SUPERVISORS = new Action("Select all Supervisors only");
-
     private static final Action UNSELECT_ALL_RECURSIVELY = new Action("Unselect recursively");
-    private static final Action UNSELECT_ALL_ACS = new Action("Unselect all area coordinators");
-    private static final Action UNSELECT_ALL_BRS = new Action("Unselect all BRS");
-    private static final Action UNSELECT_ALL_LOCATIONS = new Action("Unselect all locations");
-    private static final Action UNSELECT_ALL_BR_SUPERVISORS = new Action("Unselect all Supervisors");
 
     private static final Action EXPAND_RECURSIVELY = new Action("Expand recursively");
     private static final Action COLLAPSE_RECURSIVELY = new Action("Collapse recursively");
     private static final Action EXPAND_CHILDS = new Action("Expand childs");
     private static final Action COLLPASE_CHILDS = new Action("Collapse childs");
 
-    private boolean uncheckingRecursively = false;
+    private boolean recursiveRunning = false;
 
     private TreeTable treeTable = new TreeTable();
 
@@ -71,7 +63,7 @@ final public class ConfigureCampaignTree {
                     return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
                 } else if (targetStr.startsWith(Query._all_area_ac_id)) {
-                    return new Action[]{SELECT_ALL_RECURSIVELY, SELECT_ALL_ACS, UNSELECT_ALL_RECURSIVELY, UNSELECT_ALL_ACS,
+                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
                 } else if (targetStr.startsWith(Query._all_area_house_id)) {
                     return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
@@ -82,13 +74,13 @@ final public class ConfigureCampaignTree {
                     return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
                 } else if (targetStr.startsWith(Query._all_house_br_id)) {
-                    return new Action[]{SELECT_ALL_RECURSIVELY, SELECT_ALL_BRS, UNSELECT_ALL_RECURSIVELY, UNSELECT_ALL_BRS,
+                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
                 } else if (targetStr.startsWith(Query._all_house_location_id)) {
-                    return new Action[]{SELECT_ALL_RECURSIVELY, SELECT_ALL_LOCATIONS, UNSELECT_ALL_RECURSIVELY, UNSELECT_ALL_LOCATIONS,
+                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
                 } else if (targetStr.startsWith(Query._all_house_sup_id)) {
-                    return new Action[]{SELECT_ALL_RECURSIVELY, SELECT_ALL_BR_SUPERVISORS, UNSELECT_ALL_RECURSIVELY, UNSELECT_ALL_BR_SUPERVISORS,
+                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
 
 
@@ -104,27 +96,11 @@ final public class ConfigureCampaignTree {
                     selectAllRecursively(target, true);
                 } else if (action == UNSELECT_ALL_RECURSIVELY) {
                     try {
-                        uncheckingRecursively = true;
+                        recursiveRunning = true;
                         selectAllRecursively(target, false);
                     } finally {
-                        uncheckingRecursively = false;
+                        recursiveRunning = false;
                     }
-                } else if (action == SELECT_ALL_ACS) {
-                    selectAllChilds(target, true);
-                } else if (action == UNSELECT_ALL_ACS) {
-                    selectAllChilds(target, false);
-                } else if (action == SELECT_ALL_LOCATIONS) {
-                    selectAllChilds(target, true);
-                } else if (action == UNSELECT_ALL_LOCATIONS) {
-                    selectAllChilds(target, false);
-                } else if (action == SELECT_ALL_BRS) {
-                    selectAllChilds(target, true);
-                } else if (action == UNSELECT_ALL_BRS) {
-                    selectAllChilds(target, false);
-                } else if (action == SELECT_ALL_BR_SUPERVISORS) {
-                    selectAllChilds(target, true);
-                } else if (action == UNSELECT_ALL_BR_SUPERVISORS) {
-                    selectAllChilds(target, false);
                 } else if (action == EXPAND_CHILDS) {
                     collapseChilds(target, false);
                 } else if (action == COLLPASE_CHILDS) {
@@ -338,7 +314,7 @@ final public class ConfigureCampaignTree {
         for (; ; ) {
             if (parent == null) {
                 return;
-            } else if (!parent.toString().startsWith(Query._all)) {
+            } else /*if (!parent.toString().startsWith(Query._all))*/ {
                 final CheckBox parentCheckbox = (CheckBox) treeTable.getItem(parent).getItemProperty(NAME_PROPERTY).getValue();
                 setCheckboxValue(parentCheckbox, true);
             }
@@ -348,8 +324,8 @@ final public class ConfigureCampaignTree {
 
     private void uncheckAllParentsOnEmpy(String parent) {
         try {
-            if (!uncheckingRecursively) {
-                uncheckingRecursively = true;
+            if (!recursiveRunning) {
+                recursiveRunning = true;
                 parent = getRootParent(parent);
                 if (parent == null) return;
                 final CheckBox checkBox = checkBoxAt(parent);
@@ -358,7 +334,7 @@ final public class ConfigureCampaignTree {
                     return;
                 }
 
-                if (checkIfEmpty(getOrDefault(treeTable.getChildren(parent), Collections.EMPTY_LIST))) {
+                if (checkIfEmpty(getOrDefault(treeTable.getChildren(parent), Collections.EMPTY_LIST)).t1) {
                     setCheckboxValue(checkBox, false);
                 } else {
 //                    if (!parent.startsWith(Query._all)) {
@@ -367,11 +343,13 @@ final public class ConfigureCampaignTree {
                 }
             }
         } finally {
-            uncheckingRecursively = false;
+            recursiveRunning = false;
         }
     }
 
-    private boolean checkIfEmpty(final Collection<Object> children) {
+    private Touple2Boolean checkIfEmpty(final Collection<Object> children) {
+        boolean found = false;
+        int count = children.size();
         for (final Object childObj : children) {
 
             final String child = (String) childObj;
@@ -380,25 +358,25 @@ final public class ConfigureCampaignTree {
             boolean empty;
 
             if (isTermilan(child)) {
-                if (checkBox.getValue().booleanValue()) {
-                    return false;
-                } else {
-                    continue;
+                final boolean checked = checkBox.getValue();
+                found |= checked;
+                if (checked) {
+                    count--;
                 }
+                continue;
             }
 
-            empty = checkIfEmpty(getOrDefault(treeTable.getChildren(childObj), Collections.EMPTY_LIST));
+            final Touple2Boolean tpl = checkIfEmpty(getOrDefault(treeTable.getChildren(childObj), Collections.EMPTY_LIST));
 
-            if (empty) {
+            if (tpl.t1) {
                 setCheckboxValue(checkBox, false);
             } else {
 //                if (!child.startsWith(Query._all)) {
                 setCheckboxValue(checkBox, true);
 //                }
-                return false;
             }
         }
-        return true;
+        return new Touple2Boolean(!found, count <= 0);
     }
 
     private final boolean isTermilan(final String childObj) {
