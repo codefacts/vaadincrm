@@ -3,6 +3,7 @@ package vaadincrm.view.campaign;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Field;
 import com.vaadin.ui.TreeTable;
 import io.crm.mc;
 import io.crm.util.Touple2Boolean;
@@ -23,7 +24,6 @@ import static io.crm.util.Util.getOrDefault;
 final public class ConfigureCampaignTree {
     private static final Object NAME_PROPERTY = "Name";
     private static final String ID_PROPERTY = "Id";
-//    private static final String CHILD_COUNT_PROPERTY = "Child Count";
 
     private static final Action SELECT_ALL_RECURSIVELY = new Action("Select recursively");
     private static final Action UNSELECT_ALL_RECURSIVELY = new Action("Unselect recursively");
@@ -43,7 +43,6 @@ final public class ConfigureCampaignTree {
 
         treeTable.addContainerProperty(NAME_PROPERTY, CheckBox.class, null);
         treeTable.addContainerProperty(ID_PROPERTY, String.class, "");
-//        treeTable.addContainerProperty(CHILD_COUNT_PROPERTY, String.class, "");
 
         treeTable.addActionHandler(new Action.Handler() {
             @Override
@@ -95,12 +94,7 @@ final public class ConfigureCampaignTree {
                 if (action == SELECT_ALL_RECURSIVELY) {
                     selectAllRecursively(target, true);
                 } else if (action == UNSELECT_ALL_RECURSIVELY) {
-                    try {
-                        recursiveRunning = true;
-                        selectAllRecursively(target, false);
-                    } finally {
-                        recursiveRunning = false;
-                    }
+                    selectAllRecursively(target, false);
                 } else if (action == EXPAND_CHILDS) {
                     collapseChilds(target, false);
                 } else if (action == COLLPASE_CHILDS) {
@@ -117,27 +111,23 @@ final public class ConfigureCampaignTree {
     }
 
     private void selectAllRecursively(final Object target, final boolean value) {
-        final CheckBox checkbox = (CheckBox) treeTable.getItem(target).getItemProperty(NAME_PROPERTY).getValue();
-        checkbox.setValue(value);
+        if (!recursiveRunning) {
+            try {
+                recursiveRunning = true;
+                final CheckBox checkbox = checkBoxAt(target);
+                setCheckboxValue(checkbox, value);
 
-        traverseRecursivelyEagerly(target, null, (t, p) -> {
-            final CheckBox cbox = (CheckBox) treeTable.getItem(t).getItemProperty(NAME_PROPERTY).getValue();
-            cbox.setValue(value);
-            return true;
-        });
-    }
+                traverseRecursivelyEagerly(target, null, (t, p) -> {
+                    final CheckBox cbox = (CheckBox) treeTable.getItem(t).getItemProperty(NAME_PROPERTY).getValue();
+                    setCheckboxValue(cbox, value);
+                    return true;
+                });
+            } finally {
+                recursiveRunning = false;
+            }
+        }
 
-    private void selectAllChilds(final Object target, final boolean value) {
-        final Collection<?> children = getOrDefault(treeTable.getChildren(target), Collections.emptyList());
-        if (children.size() <= 0) {
-            return;
-        }
-        for (Object child : children) {
-            if (child == null) continue;
-            ((CheckBox) treeTable.getItem(child).getItemProperty(NAME_PROPERTY).getValue()).setValue(value);
-        }
-        final CheckBox checkbox = (CheckBox) treeTable.getItem(target).getItemProperty(NAME_PROPERTY).getValue();
-        checkbox.setValue(value);
+        onCheckBoxValueChange(target, value);
     }
 
     private void collapseRecursively(Object target, boolean value) {
@@ -173,7 +163,7 @@ final public class ConfigureCampaignTree {
             treeTable.setCollapsed(regionItemId, false);
 
             final String regionAreaId = Query._all_region_area_id + "-" + regionId;
-            final Object areaListItemId = treeTable.addItem(item(regionAreaId, "", "All Areas", areaCount), regionAreaId);
+            final Object areaListItemId = treeTable.addItem(item(regionAreaId, "", "Areas", areaCount), regionAreaId);
             treeTable.setParent(areaListItemId, regionItemId);
             treeTable.setCollapsed(areaListItemId, false);
 
@@ -187,12 +177,12 @@ final public class ConfigureCampaignTree {
                 treeTable.setCollapsed(areaItemId, false);
 
                 final String areaHouseId = Query._all_area_house_id + "-" + areaId;
-                final Object houseListItemId = treeTable.addItem(item(areaHouseId, "", "All Houses", area.getInteger(Query.houseCount, 0)), areaHouseId);
+                final Object houseListItemId = treeTable.addItem(item(areaHouseId, "", "Houses", area.getInteger(Query.houseCount, 0)), areaHouseId);
                 treeTable.setParent(houseListItemId, areaItemId);
                 treeTable.setCollapsed(houseListItemId, false);
 
                 final String areaAcId = Query._all_area_ac_id + "-" + areaId;
-                final Object acListItemId = treeTable.addItem(item(areaAcId, "", "All Area Coordinators", area.getInteger(Query.acCount, 0)), areaAcId);
+                final Object acListItemId = treeTable.addItem(item(areaAcId, "", "Area Coordinators", area.getInteger(Query.acCount, 0)), areaAcId);
                 treeTable.setParent(acListItemId, areaItemId);
                 treeTable.setCollapsed(acListItemId, false);
 
@@ -222,9 +212,9 @@ final public class ConfigureCampaignTree {
                     final String houseBrId = Query._all_house_br_id + "-" + houseId;
                     final String houseSupId = Query._all_house_sup_id + "-" + houseId;
 
-                    final Object locationSubLink = treeTable.addItem(item(houseLocationId, "", "All Locations", locsCount), houseLocationId);
-                    final Object brSubLink = treeTable.addItem(item(houseBrId, "", "All BRS", brsCount), houseBrId);
-                    final Object supSubLink = treeTable.addItem(item(houseSupId, "", "All BR Supervisors", supsCount), houseSupId);
+                    final Object locationSubLink = treeTable.addItem(item(houseLocationId, "", "Locations", locsCount), houseLocationId);
+                    final Object brSubLink = treeTable.addItem(item(houseBrId, "", "BRS", brsCount), houseBrId);
+                    final Object supSubLink = treeTable.addItem(item(houseSupId, "", "BR Supervisors", supsCount), houseSupId);
 
                     treeTable.setParent(locationSubLink, houseItemId);
                     treeTable.setParent(brSubLink, houseItemId);
@@ -265,10 +255,7 @@ final public class ConfigureCampaignTree {
         final CheckBox checkBox = new CheckBox(name);
 
         final String idStr = getOrDefault(id.toString(), "");
-        if (!(idStr.startsWith(EmployeeType.br.prefix)
-                || idStr.startsWith(EmployeeType.area_coordinator.prefix)
-                || idStr.startsWith(EmployeeType.br_supervisor.prefix)
-                || idStr.startsWith(Query.location))) {
+        if (!(isTermilan(idStr))) {
             checkBox.setReadOnly(true);
         }
 
@@ -287,10 +274,7 @@ final public class ConfigureCampaignTree {
         final String des = idStr.startsWith(Query.house) ? "    (" + childCount + ")" : " (" + childCount + ")";
         final CheckBox checkBox = new CheckBox(name + des);
 
-        if (!(idStr.startsWith(EmployeeType.br.prefix)
-                || idStr.startsWith(EmployeeType.area_coordinator.prefix)
-                || idStr.startsWith(EmployeeType.br_supervisor.prefix)
-                || idStr.startsWith(Query.location))) {
+        if (!(isTermilan(idStr))) {
             checkBox.setReadOnly(true);
         }
 
@@ -300,21 +284,26 @@ final public class ConfigureCampaignTree {
         return new Object[]{checkBox, idLabel};
     }
 
-    private void onCheckBoxValueChange(final Property.ValueChangeEvent e, final Object id, final CheckBox checkBox) {
-        final Object value = e.getProperty().getValue();
-        if (Boolean.TRUE.equals(value)) {
-            checkAllParents((String) treeTable.getParent(id));
-        } else {
-            uncheckAllParentsOnEmpy((String) treeTable.getParent(id));
+    private void onCheckBoxValueChange(final Property.ValueChangeEvent e, final Object target, final CheckBox checkBox) {
+        if (!recursiveRunning) {
+            onCheckBoxValueChange(target, (Boolean) e.getProperty().getValue());
         }
+    }
 
+    private void onCheckBoxValueChange(Object target, boolean value) {
+        final String parent = (String) treeTable.getParent(target);
+        if (value) {
+            checkAllParents(parent);
+        } else {
+            uncheckAllParentsOnEmpy(parent);
+        }
     }
 
     private void checkAllParents(String parent) {
         for (; ; ) {
             if (parent == null) {
                 return;
-            } else /*if (!parent.toString().startsWith(Query._all))*/ {
+            } else {
                 final CheckBox parentCheckbox = (CheckBox) treeTable.getItem(parent).getItemProperty(NAME_PROPERTY).getValue();
                 setCheckboxValue(parentCheckbox, true);
             }
@@ -326,20 +315,15 @@ final public class ConfigureCampaignTree {
         try {
             if (!recursiveRunning) {
                 recursiveRunning = true;
-                parent = getRootParent(parent);
-                if (parent == null) return;
-                final CheckBox checkBox = checkBoxAt(parent);
-
-                if (isTermilan(parent)) {
-                    return;
-                }
-
-                if (checkIfEmpty(getOrDefault(treeTable.getChildren(parent), Collections.EMPTY_LIST)).t1) {
-                    setCheckboxValue(checkBox, false);
-                } else {
-//                    if (!parent.startsWith(Query._all)) {
-                    setCheckboxValue(checkBox, true);
-//                    }
+                for (; ; ) {
+                    if (parent == null) return;
+                    final boolean val = !checkIfEmpty(treeTable.getChildren(parent));
+                    final CheckBox checkBox = checkBoxAt(parent);
+                    setCheckboxValue(checkBox, val);
+                    if (val) {
+                        return;
+                    }
+                    parent = (String) treeTable.getParent(parent);
                 }
             }
         } finally {
@@ -347,36 +331,15 @@ final public class ConfigureCampaignTree {
         }
     }
 
-    private Touple2Boolean checkIfEmpty(final Collection<Object> children) {
-        boolean found = false;
-        int count = children.size();
+    private boolean checkIfEmpty(final Collection<?> children) {
         for (final Object childObj : children) {
-
-            final String child = (String) childObj;
-
             final CheckBox checkBox = checkBoxAt(childObj);
-            boolean empty;
-
-            if (isTermilan(child)) {
-                final boolean checked = checkBox.getValue();
-                found |= checked;
-                if (checked) {
-                    count--;
-                }
-                continue;
-            }
-
-            final Touple2Boolean tpl = checkIfEmpty(getOrDefault(treeTable.getChildren(childObj), Collections.EMPTY_LIST));
-
-            if (tpl.t1) {
-                setCheckboxValue(checkBox, false);
-            } else {
-//                if (!child.startsWith(Query._all)) {
-                setCheckboxValue(checkBox, true);
-//                }
+            final boolean checked = checkBox.getValue();
+            if (checked) {
+                return false;
             }
         }
-        return new Touple2Boolean(!found, count <= 0);
+        return true;
     }
 
     private final boolean isTermilan(final String childObj) {
