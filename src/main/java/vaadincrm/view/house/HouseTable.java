@@ -562,7 +562,7 @@ final public class HouseTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + io.crm.util.Util.isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + io.crm.util.Util.isEmptyOrNullOrSpaces(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;

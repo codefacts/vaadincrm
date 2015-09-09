@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static io.crm.util.Util.isEmptyOrNull;
+import static io.crm.util.Util.isEmptyOrNullOrSpaces;
 import static vaadincrm.model.Model.id;
 import static vaadincrm.util.VaadinUtil.asMap;
 
@@ -198,7 +198,7 @@ final public class BrandTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + isEmptyOrNullOrSpaces(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;

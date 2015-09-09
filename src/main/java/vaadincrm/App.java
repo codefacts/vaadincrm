@@ -30,6 +30,20 @@ public class App {
         Vertx.vertx().deployVerticle(AllModuleStarterVerticle.class.getName());
     }
 
+    public static void runAllModulesClustered(String... args) {
+        Vertx.clusteredVertx(new VertxOptions(), r -> {
+            if (r.failed()) {
+                throw new RuntimeException(r.cause());
+            }
+            r.result().deployVerticle(AllModuleStarterVerticle.class.getName(), new DeploymentOptions(), r1 -> {
+                if (r1.failed()) {
+                    throw new RuntimeException(r1.cause());
+                }
+                System.out.println("*******************************-----CLUSTER_COMPLETE-----*****************************************");
+            });
+        });
+    }
+
     public static void run() {
         Vertx.clusteredVertx(new VertxOptions(), new Handler<AsyncResult<Vertx>>() {
             @Override

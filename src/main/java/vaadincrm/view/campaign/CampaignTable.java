@@ -33,7 +33,7 @@ import static fluentui.FluentButton.button;
 import static fluentui.FluentDateField.dateField;
 import static fluentui.FluentNativeSelect.nativeSelect;
 import static fluentui.FluentUI.textField;
-import static io.crm.util.Util.isEmptyOrNull;
+import static io.crm.util.Util.isEmptyOrNullOrSpaces;
 import static io.crm.util.Util.parseMongoDate;
 import static io.crm.util.Util.toMongoDate;
 import static vaadincrm.App.bus;
@@ -288,7 +288,7 @@ final public class CampaignTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + isEmptyOrNullOrSpaces(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;

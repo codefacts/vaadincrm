@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static io.crm.util.ExceptionUtil.toRuntime;
-import static io.crm.util.Util.isEmptyOrNull;
+import static io.crm.util.Util.isEmptyOrNullOrSpaces;
 import static vaadincrm.Resp._created_successfully;
 import static vaadincrm.Resp._updated_successfully;
 import static vaadincrm.Resp.value_is_invalid;
@@ -237,7 +237,7 @@ final public class AreaTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + isEmptyOrNullOrSpaces(cause.getMessage()) + " Please try again.", Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;

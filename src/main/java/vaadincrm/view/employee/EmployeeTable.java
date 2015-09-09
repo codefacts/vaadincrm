@@ -157,7 +157,7 @@ final public class EmployeeTable {
 
     private void viewPasswordForm(JsonObject user) {
 
-        if (isEmptyOrNull(user.getString(User.password))) {
+        if (isEmptyOrNullOrSpaces(user.getString(User.password))) {
             Notification.show(Resp.This_user_does_not_have_password, Notification.Type.WARNING_MESSAGE);
             return;
         }
@@ -579,7 +579,7 @@ final public class EmployeeTable {
                     }
                 }
                 ui.access(() -> {
-                    Notification.show("Error: " + isEmptyOrNull(cause.getMessage()), Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Error: " + isEmptyOrNullOrSpaces(cause.getMessage()), Notification.Type.ERROR_MESSAGE);
                     window.close();
                 });
                 return;
