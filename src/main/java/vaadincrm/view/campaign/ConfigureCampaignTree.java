@@ -5,18 +5,19 @@ import com.vaadin.event.Action;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.TreeTable;
+import io.crm.QC;
 import io.crm.mc;
 import io.crm.util.Touple2Boolean;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import vaadincrm.model.*;
+import io.crm.model.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.BiFunction;
 
-import static vaadincrm.model.Model.id;
+import static io.crm.QC.id;
 import static io.crm.util.Util.getOrDefault;
 
 /**
@@ -52,34 +53,34 @@ final public class ConfigureCampaignTree {
                 if (target == null) return new Action[0];
                 String targetStr = target.toString();
 
-                if (targetStr.startsWith(Query.region)) {
+                if (targetStr.startsWith(QC.region)) {
                     return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
-                } else if (targetStr.startsWith(Query._all_region_area_id)) {
-                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
-                            EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
-
-                } else if (targetStr.startsWith(Query.area)) {
-                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
-                            EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
-                } else if (targetStr.startsWith(Query._all_area_ac_id)) {
-                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
-                            EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
-                } else if (targetStr.startsWith(Query._all_area_house_id)) {
+                } else if (targetStr.startsWith(QC._all_region_area_id)) {
                     return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
 
+                } else if (targetStr.startsWith(QC.area)) {
+                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
+                            EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
+                } else if (targetStr.startsWith(QC._all_area_ac_id)) {
+                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
+                            EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
+                } else if (targetStr.startsWith(QC._all_area_house_id)) {
+                    return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
+                            EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
 
-                } else if (targetStr.startsWith(Query.house)) {
+
+                } else if (targetStr.startsWith(QC.house)) {
                     return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
-                } else if (targetStr.startsWith(Query._all_house_br_id)) {
+                } else if (targetStr.startsWith(QC._all_house_br_id)) {
                     return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
-                } else if (targetStr.startsWith(Query._all_house_location_id)) {
+                } else if (targetStr.startsWith(QC._all_house_location_id)) {
                     return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
-                } else if (targetStr.startsWith(Query._all_house_sup_id)) {
+                } else if (targetStr.startsWith(QC._all_house_sup_id)) {
                     return new Action[]{SELECT_ALL_RECURSIVELY, UNSELECT_ALL_RECURSIVELY,
                             EXPAND_CHILDS, COLLPASE_CHILDS, EXPAND_RECURSIVELY, COLLAPSE_RECURSIVELY};
 
@@ -116,9 +117,9 @@ final public class ConfigureCampaignTree {
         for (Object region : getOrDefault(treeTable.rootItemIds(), Collections.EMPTY_LIST)) {
             if (!checkBoxAt(region).getValue()) continue;
 
-            Long regionId = getId((String) region, Query.region);
+            Long regionId = getId((String) region, QC.region);
             final JsonObject regionJson = new JsonObject()
-                    .put(Query.id, regionId);
+                    .put(QC.id, regionId);
 
             final JsonObject areaListJson = new JsonObject();
             getOrDefault(treeTable.getChildren(region), Collections.EMPTY_LIST).forEach(areaList -> {
@@ -126,20 +127,20 @@ final public class ConfigureCampaignTree {
                 for (Object area : getOrDefault(treeTable.getChildren(areaList), Collections.EMPTY_LIST)) {
                     if (!checkBoxAt(area).getValue()) continue;
 
-                    final Long areaId = getId((String) area, Query.area);
-                    final JsonObject areaJson = new JsonObject().put(Query.id, areaId);
+                    final Long areaId = getId((String) area, QC.area);
+                    final JsonObject areaJson = new JsonObject().put(QC.id, areaId);
 
                     final JsonObject houseListJson = new JsonObject();
                     final JsonObject acListJson = new JsonObject();
                     getOrDefault(treeTable.getChildren(area), Collections.EMPTY_LIST).forEach(houseAcList -> {
 
-                        if (houseAcList.toString().startsWith(Query._all_area_house_id)) {
+                        if (houseAcList.toString().startsWith(QC._all_area_house_id)) {
 
                             for (Object house : getOrDefault(treeTable.getChildren(houseAcList), Collections.EMPTY_LIST)) {
                                 if (!checkBoxAt(house).getValue()) continue;
 
-                                final Long houseId = getId((String) house, Query.house);
-                                final JsonObject houseJson = new JsonObject().put(Query.id, houseId);
+                                final Long houseId = getId((String) house, QC.house);
+                                final JsonObject houseJson = new JsonObject().put(QC.id, houseId);
 
                                 final JsonObject brListJson = new JsonObject();
                                 final JsonObject locationListJson = new JsonObject();
@@ -147,51 +148,51 @@ final public class ConfigureCampaignTree {
 
                                 getOrDefault(treeTable.getChildren(house), Collections.EMPTY_LIST).forEach(brLocSupList -> {
 
-                                    if (brLocSupList.toString().startsWith(Query._all_house_br_id)) {
+                                    if (brLocSupList.toString().startsWith(QC._all_house_br_id)) {
                                         for (Object brId : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
                                             if (!checkBoxAt(brId).getValue()) continue;
-                                            final JsonObject brJson = new JsonObject().put(Query.id, brId);
+                                            final JsonObject brJson = new JsonObject().put(QC.id, brId);
                                             brListJson.put(brId.toString(), brJson);
                                         }
                                     }
 
-                                    if (brLocSupList.toString().startsWith(Query._all_house_location_id)) {
+                                    if (brLocSupList.toString().startsWith(QC._all_house_location_id)) {
                                         for (Object location : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
                                             if (!checkBoxAt(location).getValue()) continue;
-                                            final Long locId = getId(location.toString(), Query.location);
-                                            final JsonObject locJson = new JsonObject().put(Query.id, locId);
+                                            final Long locId = getId(location.toString(), QC.location);
+                                            final JsonObject locJson = new JsonObject().put(QC.id, locId);
                                             locationListJson.put(locId.toString(), locJson);
                                         }
                                     }
 
-                                    if (brLocSupList.toString().startsWith(Query._all_house_sup_id)) {
+                                    if (brLocSupList.toString().startsWith(QC._all_house_sup_id)) {
                                         for (Object supId : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
                                             if (!checkBoxAt(supId).getValue()) continue;
-                                            final JsonObject supJson = new JsonObject().put(Query.id, supId);
+                                            final JsonObject supJson = new JsonObject().put(QC.id, supId);
                                             supListJson.put(supId.toString(), supJson);
                                         }
                                     }
                                 });
 
-                                houseJson.put(Query.brSupervisors, supListJson);
+                                houseJson.put(QC.brSupervisors, supListJson);
                                 houseJson.put(mc.locations.name(), locationListJson);
-                                houseJson.put(Query.brs, brListJson);
+                                houseJson.put(QC.brs, brListJson);
 
                                 houseListJson.put(houseId.toString(), houseJson);
                             }
-                        } else if (houseAcList.toString().startsWith(Query._all_area_ac_id)) {
+                        } else if (houseAcList.toString().startsWith(QC._all_area_ac_id)) {
 
                             for (Object acId : getOrDefault(treeTable.getChildren(houseAcList), Collections.EMPTY_LIST)) {
                                 if (!checkBoxAt(acId).getValue()) continue;
 
-                                final JsonObject acJson = new JsonObject().put(Query.id, acId);
+                                final JsonObject acJson = new JsonObject().put(QC.id, acId);
                                 acListJson.put(acId.toString(), acJson);
                             }
                         }
                     });
 
                     areaJson.put(mc.distribution_houses.name(), houseListJson);
-                    areaJson.put(Query.areaCoordinators, acListJson);
+                    areaJson.put(QC.areaCoordinators, acListJson);
 
                     areaListJson.put(areaId.toString(), areaJson);
                 }
@@ -249,17 +250,17 @@ final public class ConfigureCampaignTree {
     public void populateData(final JsonObject tree) {
 
         final JsonArray emptyArray = new JsonArray();
-        for (final Object regionObj : tree.getJsonArray(Query.regions, emptyArray)) {
+        for (final Object regionObj : tree.getJsonArray(QC.regions, emptyArray)) {
             final JsonObject region = (JsonObject) regionObj;
             final Long regionId = region.getLong(id);
             JsonArray areas = region.getJsonArray(mc.areas.name(), emptyArray);
             final int areaCount = areas.size();
 
-            final Object regionItemId = treeTable.addItem(item(Query.region + "-" + regionId, region.getString(Region.name)),
-                    Query.region + "-" + regionId);
+            final Object regionItemId = treeTable.addItem(item(QC.region + "-" + regionId, region.getString(Region.name)),
+                    QC.region + "-" + regionId);
             treeTable.setCollapsed(regionItemId, false);
 
-            final String regionAreaId = Query._all_region_area_id + "-" + regionId;
+            final String regionAreaId = QC._all_region_area_id + "-" + regionId;
             final Object areaListItemId = treeTable.addItem(item(regionAreaId, "", "Areas", areaCount), regionAreaId);
             treeTable.setParent(areaListItemId, regionItemId);
             treeTable.setCollapsed(areaListItemId, false);
@@ -269,21 +270,21 @@ final public class ConfigureCampaignTree {
                 final Long areaId = area.getLong(id);
                 final JsonArray houses = area.getJsonArray(mc.distribution_houses.name(), emptyArray);
 
-                final Object areaItemId = treeTable.addItem(item(Query.area + "-" + areaId, area.getString(Area.name)), Query.area + "-" + areaId);
+                final Object areaItemId = treeTable.addItem(item(QC.area + "-" + areaId, area.getString(Area.name)), QC.area + "-" + areaId);
                 treeTable.setParent(areaItemId, areaListItemId);
                 treeTable.setCollapsed(areaItemId, false);
 
-                final String areaHouseId = Query._all_area_house_id + "-" + areaId;
-                final Object houseListItemId = treeTable.addItem(item(areaHouseId, "", "Houses", area.getInteger(Query.houseCount, 0)), areaHouseId);
+                final String areaHouseId = QC._all_area_house_id + "-" + areaId;
+                final Object houseListItemId = treeTable.addItem(item(areaHouseId, "", "Houses", area.getInteger(QC.houseCount, 0)), areaHouseId);
                 treeTable.setParent(houseListItemId, areaItemId);
                 treeTable.setCollapsed(houseListItemId, false);
 
-                final String areaAcId = Query._all_area_ac_id + "-" + areaId;
-                final Object acListItemId = treeTable.addItem(item(areaAcId, "", "Area Coordinators", area.getInteger(Query.acCount, 0)), areaAcId);
+                final String areaAcId = QC._all_area_ac_id + "-" + areaId;
+                final Object acListItemId = treeTable.addItem(item(areaAcId, "", "Area Coordinators", area.getInteger(QC.acCount, 0)), areaAcId);
                 treeTable.setParent(acListItemId, areaItemId);
                 treeTable.setCollapsed(acListItemId, false);
 
-                for (final Object acObj : area.getJsonArray(Query.areaCoordinators, emptyArray)) {
+                for (final Object acObj : area.getJsonArray(QC.areaCoordinators, emptyArray)) {
                     JsonObject ac = (JsonObject) acObj;
                     final String acId = ac.getString(User.userId);
                     final Object acItemId = treeTable.addItem(item(acId, ac.getString(User.name), ""),
@@ -294,20 +295,20 @@ final public class ConfigureCampaignTree {
                 for (final Object houseObj : houses) {
                     final JsonObject house = (JsonObject) houseObj;
                     final Long houseId = house.getLong(id);
-                    final JsonArray brs = house.getJsonArray(Query.brs, emptyArray);
-                    final JsonArray locations = house.getJsonArray(Query.locations, emptyArray);
-                    final JsonArray supervisors = house.getJsonArray(Query.brSupervisors, emptyArray);
+                    final JsonArray brs = house.getJsonArray(QC.brs, emptyArray);
+                    final JsonArray locations = house.getJsonArray(QC.locations, emptyArray);
+                    final JsonArray supervisors = house.getJsonArray(QC.brSupervisors, emptyArray);
                     final int brsCount = brs.size();
                     final int locsCount = locations.size();
                     final int supsCount = supervisors.size();
 
-                    final Object houseItemId = treeTable.addItem(item(Query.house + "-" + houseId, house.getString(House.name), String.format("BRS: %d, Loc: %d, Sups: %d", brsCount, locsCount, supsCount)),
-                            Query.house + "-" + houseId);
+                    final Object houseItemId = treeTable.addItem(item(QC.house + "-" + houseId, house.getString(House.name), String.format("BRS: %d, Loc: %d, Sups: %d", brsCount, locsCount, supsCount)),
+                            QC.house + "-" + houseId);
                     treeTable.setParent(houseItemId, houseListItemId);
 
-                    final String houseLocationId = Query._all_house_location_id + "-" + houseId;
-                    final String houseBrId = Query._all_house_br_id + "-" + houseId;
-                    final String houseSupId = Query._all_house_sup_id + "-" + houseId;
+                    final String houseLocationId = QC._all_house_location_id + "-" + houseId;
+                    final String houseBrId = QC._all_house_br_id + "-" + houseId;
+                    final String houseSupId = QC._all_house_sup_id + "-" + houseId;
 
                     final Object locationSubLink = treeTable.addItem(item(houseLocationId, "", "Locations", locsCount), houseLocationId);
                     final Object brSubLink = treeTable.addItem(item(houseBrId, "", "BRS", brsCount), houseBrId);
@@ -321,9 +322,9 @@ final public class ConfigureCampaignTree {
                         final JsonObject loc = (JsonObject) locObj;
                         final Long locId = loc.getLong(id);
 
-                        final Object locItemId = treeTable.addItem(item(Query.location + "-" + locId,
+                        final Object locItemId = treeTable.addItem(item(QC.location + "-" + locId,
                                         loc.getString(User.name)),
-                                Query.location + "-" + locId);
+                                QC.location + "-" + locId);
                         treeTable.setParent(locItemId, locationSubLink);
                     }
 
@@ -345,7 +346,7 @@ final public class ConfigureCampaignTree {
                 }
             }
         }
-        System.out.println("TREE WITH USERS >> REGION: " + tree.size() + " AREA: " + tree.getInteger(Query.areaCount) + " house: " + tree.getInteger(Query.houseCount) + " loc: " + tree.getInteger(Query.locationCount) + " ac: " + tree.getInteger(Query.acCount) + " sup: " + tree.getInteger(Query.supCount) + " br: " + tree.getInteger(Query.brCount));
+        System.out.println("TREE WITH USERS >> REGION: " + tree.size() + " AREA: " + tree.getInteger(QC.areaCount) + " house: " + tree.getInteger(QC.houseCount) + " loc: " + tree.getInteger(QC.locationCount) + " ac: " + tree.getInteger(QC.acCount) + " sup: " + tree.getInteger(QC.supCount) + " br: " + tree.getInteger(QC.brCount));
     }
 
     private Object[] item(final Object id, final String name) {
@@ -368,7 +369,7 @@ final public class ConfigureCampaignTree {
 
     private Object[] item(final Object id, final Object idLabel, final String name, final Object childCount) {
         final String idStr = getOrDefault(id.toString(), "");
-        final String des = idStr.startsWith(Query.house) ? "    (" + childCount + ")" : " (" + childCount + ")";
+        final String des = idStr.startsWith(QC.house) ? "    (" + childCount + ")" : " (" + childCount + ")";
         final CheckBox checkBox = new CheckBox(name + des);
 
         if (!(isTermilan(idStr))) {
@@ -443,7 +444,7 @@ final public class ConfigureCampaignTree {
         return childObj.startsWith(EmployeeType.br.prefix)
                 || childObj.startsWith(EmployeeType.area_coordinator.prefix)
                 || childObj.startsWith(EmployeeType.br_supervisor.prefix)
-                || childObj.startsWith(Query.location);
+                || childObj.startsWith(QC.location);
     }
 
     private CheckBox checkBoxAt(final Object parent) {

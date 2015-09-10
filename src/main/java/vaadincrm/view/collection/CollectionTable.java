@@ -1,13 +1,10 @@
 package vaadincrm.view.collection;
 
 import com.vaadin.server.ExternalResource;
-import com.vaadin.ui.Grid;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Table;
 import io.crm.mc;
 import io.vertx.core.json.JsonObject;
-import vaadincrm.App;
-import vaadincrm.model.Query;
 
 /**
  * Created by someone on 16-Aug-2015.

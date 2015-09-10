@@ -8,13 +8,13 @@ import com.vaadin.server.Responsive;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import io.crm.Events;
+import io.crm.QC;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
 import vaadincrm.event.CloseOpenWindowsEvent;
 import vaadincrm.event.DashboardEventBus;
-import vaadincrm.model.Query;
 import vaadincrm.view.campaign.ConfigureCampaignTree;
 
 final public class DashboardView extends Panel implements View {
@@ -104,19 +104,19 @@ final public class DashboardView extends Panel implements View {
 
             ui.access(() -> {
                 regionCountButton.setImmediate(true);
-                regionCountButton.setCaption("Region: " + tree.getInteger(Query.regionCount));
+                regionCountButton.setCaption("Region: " + tree.getInteger(QC.regionCount));
 
                 areaCountButton.setImmediate(true);
-                areaCountButton.setCaption("Area: " + tree.getInteger(Query.areaCount));
+                areaCountButton.setCaption("Area: " + tree.getInteger(QC.areaCount));
 
                 houseCountButton.setImmediate(true);
-                houseCountButton.setCaption("House: " + tree.getInteger(Query.houseCount));
+                houseCountButton.setCaption("House: " + tree.getInteger(QC.houseCount));
 
                 brCountButton.setImmediate(true);
-                brCountButton.setCaption("BR: " + tree.getInteger(Query.brCount));
+                brCountButton.setCaption("BR: " + tree.getInteger(QC.brCount));
 
                 locationCountButton.setImmediate(true);
-                locationCountButton.setCaption("Location: " + tree.getInteger(Query.locationCount));
+                locationCountButton.setCaption("Location: " + tree.getInteger(QC.locationCount));
 
                 dbTreeTable.populateData(tree);
             });

@@ -5,6 +5,7 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.*;
 import io.crm.Events;
 import io.crm.FailureCode;
+import io.crm.QC;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -13,7 +14,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
 import vaadincrm.Resp;
-import vaadincrm.model.Query;
 import vaadincrm.service.SelectionService;
 import vaadincrm.util.FutureResult;
 import vaadincrm.util.VaadinUtil;
@@ -39,9 +39,9 @@ final public class HouseTable {
 
     private static final String UPDATE_REQUEST = Events.UPDATE_HOUSE;
     private static final String CREATE_REQUEST = Events.CREATE_HOUSE;
-    private static final String PARENT_FIELD = Query.area;
+    private static final String PARENT_FIELD = QC.area;
     private static final String PARENT_LABEL = Resp.Area;
-    private static final String PARENT_ID_FIELD = Query.areaId;
+    private static final String PARENT_ID_FIELD = QC.areaId;
 
     private static final Action ADD_ITEM_ACTION = new Action("Add new " + collection);
     private static final Action EDIT_ITEM_ACTION = new Action("Edit this " + collection);
@@ -125,12 +125,12 @@ final public class HouseTable {
 
         final JsonObject area = house.getJsonObject(PARENT_FIELD, new JsonObject());
         content.addComponents(
-                addDetailsField("ID", house.getLong(Query.id)),
-                addDetailsField("Name", house.getString(Query.name)),
+                addDetailsField("ID", house.getLong(QC.id)),
+                addDetailsField("Name", house.getString(QC.name)),
                 addDetailsFieldWithLink(PARENT_LABEL, area
-                        .getString(Query.name)),
+                        .getString(QC.name)),
                 addDetailsFieldWithLink("Region", area
-                        .getJsonObject(Query.region, new JsonObject()).getString(Query.name)));
+                        .getJsonObject(QC.region, new JsonObject()).getString(QC.name)));
 
 
         final VerticalLayout content2 = new VerticalLayout();
@@ -139,7 +139,7 @@ final public class HouseTable {
         content2.setSpacing(true);
         content2.setMargin(true);
 
-        content2.addComponent(addDetailsFieldMultiLink("Locations", house.getJsonArray(Query.locations, new JsonArray())));
+        content2.addComponent(addDetailsFieldMultiLink("Locations", house.getJsonArray(QC.locations, new JsonArray())));
 
 
         final HorizontalLayout layout = new HorizontalLayout(content, content2);
@@ -160,7 +160,7 @@ final public class HouseTable {
         table.addContainerProperty("Locations", Link.class, "");
         jsonArray.forEach(j -> {
             JsonObject loc = (JsonObject) j;
-            table.addItem(new Object[]{new Link(loc.getString(Query.name), new ExternalResource(""))}, loc.getLong(Query.id));
+            table.addItem(new Object[]{new Link(loc.getString(QC.name), new ExternalResource(""))}, loc.getLong(QC.id));
         });
 
         return table;
@@ -203,7 +203,7 @@ final public class HouseTable {
         form.setSpacing(true);
         form.setMargin(true);
 
-        final TextField nameField = new TextField("Name", house.getString(Query.name));
+        final TextField nameField = new TextField("Name", house.getString(QC.name));
         nameField.setNullSettingAllowed(false);
         nameField.setRequired(true);
         form.addComponent(nameField);
@@ -227,7 +227,7 @@ final public class HouseTable {
         regionSelect.addItem(Zero);
         regionSelect.setItemCaption(Zero, "Select Region");
         findAllAndPopulate(regionSelect, Events.FIND_ALL_REGIONS);
-        regionSelect.setValue(house.getJsonObject(PARENT_FIELD, new JsonObject()).getJsonObject(Query.region).getLong(id));
+        regionSelect.setValue(house.getJsonObject(PARENT_FIELD, new JsonObject()).getJsonObject(QC.region).getLong(id));
         form.addComponent(regionSelect);
 
         selectionService.onAreaRegionSelection(parentSelect, regionSelect);
@@ -239,7 +239,7 @@ final public class HouseTable {
             nameField.setComponentError(null);
             parentSelect.setComponentError(null);
             App.bus.send(UPDATE_REQUEST, new JsonObject().put(id, house.getLong(id))
-                    .put(Query.name, nameField.getValue())
+                    .put(QC.name, nameField.getValue())
                     .put(PARENT_FIELD, parentSelect.getValue()), respond(ui, window, nameField, parentSelect, collection + _updated_successfully));
         });
         form.addComponent(updateButton);
@@ -261,9 +261,9 @@ final public class HouseTable {
         table.setSelectable(false);
 
         table.addContainerProperty("Locations", Link.class, "");
-        house.getJsonArray(Query.locations, new JsonArray()).forEach(j -> {
+        house.getJsonArray(QC.locations, new JsonArray()).forEach(j -> {
             JsonObject loc = (JsonObject) j;
-            table.addItem(new Object[]{new Link(loc.getString(Query.name), new ExternalResource(""))}, loc.getLong(Query.id));
+            table.addItem(new Object[]{new Link(loc.getString(QC.name), new ExternalResource(""))}, loc.getLong(QC.id));
         });
 
         table.addActionHandler(new Action.Handler() {
@@ -314,7 +314,7 @@ final public class HouseTable {
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        houseSelect.setValue(house.getLong(Query.id));
+        houseSelect.setValue(house.getLong(QC.id));
         form.addComponent(houseSelect);
 
 
@@ -344,7 +344,7 @@ final public class HouseTable {
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        regionSelect.setValue(house.getJsonObject(PARENT_FIELD, new JsonObject()).getJsonObject(Query.region).getLong(id));
+        regionSelect.setValue(house.getJsonObject(PARENT_FIELD, new JsonObject()).getJsonObject(QC.region).getLong(id));
         form.addComponent(regionSelect);
 
         selectionService.onAreaRegionSelection(houseSelect, parentSelect, regionSelect);
@@ -355,12 +355,12 @@ final public class HouseTable {
             final UI ui = UI.getCurrent();
             final JsonObject jsonObject = new JsonObject();
 
-            house.getJsonArray(Query.locations, new JsonArray()).forEach(j -> {
+            house.getJsonArray(QC.locations, new JsonArray()).forEach(j -> {
                 JsonObject jo = (JsonObject) j;
-                if (jo.getLong(Query.id).equals(locationId)) {
-                    jsonObject.put(Query.id, locationId)
-                            .put(Query.name, jo.getString(Query.name))
-                            .put(Query.distributionHouse, houseSelect.getValue());
+                if (jo.getLong(QC.id).equals(locationId)) {
+                    jsonObject.put(QC.id, locationId)
+                            .put(QC.name, jo.getString(QC.name))
+                            .put(QC.distributionHouse, houseSelect.getValue());
                 }
             });
 
@@ -369,7 +369,7 @@ final public class HouseTable {
                     if (r.failed()) {
                         ui.access(() -> {
                             if (r.cause() instanceof ReplyException && ((ReplyException) r.cause()).failureCode() == FailureCode.validationError.code) {
-                                Notification.show(String.format("%s", new JsonObject(r.cause().getMessage()).getJsonArray(Query.name, new JsonArray()).getJsonObject(0).getString(Query.message, "Unknown validation error.")), Notification.Type.ERROR_MESSAGE);
+                                Notification.show(String.format("%s", new JsonObject(r.cause().getMessage()).getJsonArray(QC.name, new JsonArray()).getJsonObject(0).getString(QC.message, "Unknown validation error.")), Notification.Type.ERROR_MESSAGE);
                                 return;
                             }
                             Notification.show(String.format("%s Please try again.", r.cause().getMessage()), Notification.Type.ERROR_MESSAGE);
@@ -420,17 +420,17 @@ final public class HouseTable {
 
             final UI ui = UI.getCurrent();
             final JsonObject jsonObject = (locationId == null || locationId.equals(0L))
-                    ? new JsonObject().put(Query.name, nameField.getValue())
-                    : new JsonObject().put(Query.id, locationId).put(Query.name, nameField.getValue());
+                    ? new JsonObject().put(QC.name, nameField.getValue())
+                    : new JsonObject().put(QC.id, locationId).put(QC.name, nameField.getValue());
 
-            jsonObject.put(Query.distributionHouse, house.getLong(Query.id, 0L));
+            jsonObject.put(QC.distributionHouse, house.getLong(QC.id, 0L));
 
             App.bus.send(reqAddress, jsonObject, r -> {
                 ui.access(() -> {
                     if (r.failed()) {
                         ui.access(() -> {
                             if (r.cause() instanceof ReplyException && ((ReplyException) r.cause()).failureCode() == FailureCode.validationError.code) {
-                                Notification.show(String.format("%s", new JsonObject(r.cause().getMessage()).getJsonArray(Query.name, new JsonArray()).getJsonObject(0).getString(Query.message, "Unknown validation error.")), Notification.Type.ERROR_MESSAGE);
+                                Notification.show(String.format("%s", new JsonObject(r.cause().getMessage()).getJsonArray(QC.name, new JsonArray()).getJsonObject(0).getString(QC.message, "Unknown validation error.")), Notification.Type.ERROR_MESSAGE);
                                 return;
                             }
                             Notification.show(String.format("%s Please try again.", r.cause().getMessage()), Notification.Type.ERROR_MESSAGE);
@@ -499,7 +499,7 @@ final public class HouseTable {
             nameField.setComponentError(null);
             parentSelect.setComponentError(null);
             App.bus.send(CREATE_REQUEST, new JsonObject()
-                    .put(Query.name, nameField.getValue())
+                    .put(QC.name, nameField.getValue())
                     .put(PARENT_FIELD, parentSelect.getValue()), respond(ui, window, nameField, parentSelect, collection + _created_successfully));
         });
         form.addComponent(updateButton);
@@ -512,10 +512,10 @@ final public class HouseTable {
         final Map<Long, JsonObject> map = new LinkedHashMap<>();
         parentList.forEach(doc -> {
             JsonObject document = (JsonObject) doc;
-            final Long parentId = document.getLong(Query.id);
+            final Long parentId = document.getLong(QC.id);
             parentSelect.addItem(parentId);
-            parentSelect.setItemCaption(parentId, document.getString(Query.name));
-            map.put(document.getLong(Query.id, 0L), document);
+            parentSelect.setItemCaption(parentId, document.getString(QC.name));
+            map.put(document.getLong(QC.id, 0L), document);
         });
         return map;
     }
@@ -547,12 +547,12 @@ final public class HouseTable {
                                 final JsonArray list = ((JsonArray) e.getValue());
                                 String errorMessages = "";
                                 switch (e.getKey()) {
-                                    case Query.name:
-                                        errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> VaadinUtil.asMap(j).get(Query.message) + "").collect(Collectors.toList()));
+                                    case QC.name:
+                                        errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> VaadinUtil.asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                     case PARENT_ID_FIELD:
-                                        errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> VaadinUtil.asMap(j).get(Query.message) + "").collect(Collectors.toList()));
+                                        errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> VaadinUtil.asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         parentSelect.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                 }
@@ -579,18 +579,18 @@ final public class HouseTable {
         data.forEach(v -> {
             JsonObject house = (JsonObject) v;
             final Long houseId = house.getLong(id);
-            table.addItem(item(houseId, house.getString(Query.name, ""), house.getJsonObject(PARENT_FIELD, new JsonObject()), house.getJsonArray(Query.locations, new JsonArray())), houseId);
+            table.addItem(item(houseId, house.getString(QC.name, ""), house.getJsonObject(PARENT_FIELD, new JsonObject()), house.getJsonArray(QC.locations, new JsonArray())), houseId);
             dataMap.put(houseId, house);
         });
     }
 
     private Object[] item(final Long id, final String name, final JsonObject area, final JsonArray locations) {
-        final Link link = new Link(area.getString(Query.name, ""), new ExternalResource(""));
-        final Link linkRegion = new Link(area.getJsonObject(Query.region, new JsonObject()).getString(Query.name, ""), new ExternalResource(""));
+        final Link link = new Link(area.getString(QC.name, ""), new ExternalResource(""));
+        final Link linkRegion = new Link(area.getJsonObject(QC.region, new JsonObject()).getString(QC.name, ""), new ExternalResource(""));
         final ArrayList<String> locationList = new ArrayList<>();
         locations.forEach(l -> {
             JsonObject loc = (JsonObject) l;
-            locationList.add(loc.getString(Query.name, ""));
+            locationList.add(loc.getString(QC.name, ""));
         });
         final Link linkLocation = new Link(String.join("\n", locationList), new ExternalResource(""));
         return new Object[]{id, name, link, linkRegion, linkLocation};

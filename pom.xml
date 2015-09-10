@@ -66,6 +66,13 @@
             <version>${vertx.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-lang-js</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+
         <!-- Add hazelcast deps if you want it clusterable -->
         <dependency>
             <groupId>io.vertx</groupId>

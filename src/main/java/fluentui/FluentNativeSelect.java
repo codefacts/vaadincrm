@@ -7,18 +7,12 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.Resource;
-import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.NativeSelect;
+import io.crm.QC;
 import io.vertx.core.json.JsonObject;
-import vaadincrm.model.Query;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
-import static vaadincrm.model.Query.caption;
-import static vaadincrm.model.Query.id;
 
 /**
  * Created by someone on 31/08/2015.
@@ -402,7 +396,7 @@ public class FluentNativeSelect {
     }
 
     public FluentNativeSelect options(Collection<JsonObject> list) {
-        list.forEach(j -> addItemWithCaption(j.getValue(id), j.getString(Query.caption)));
+        list.forEach(j -> addItemWithCaption(j.getValue(QC.id), j.getString(QC.caption)));
         return this;
     }
 }

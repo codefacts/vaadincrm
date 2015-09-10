@@ -5,6 +5,7 @@ import com.vaadin.ui.*;
 import fluentui.FluentFormLayout;
 import io.crm.Events;
 import io.crm.FailureCode;
+import io.crm.QC;
 import io.crm.util.Touple1;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -13,8 +14,7 @@ import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.Resp;
-import vaadincrm.model.Campaign;
-import vaadincrm.model.Query;
+import io.crm.model.Campaign;
 import vaadincrm.service.QueryService;
 import vaadincrm.util.MapBuilder;
 import vaadincrm.util.PopupWindow;
@@ -39,8 +39,8 @@ import static io.crm.util.Util.toMongoDate;
 import static vaadincrm.App.bus;
 import static io.crm.Events.CREATE_CAMPAIGN;
 import static io.crm.Events.FIND_ALL_BRANDS;
-import static vaadincrm.model.Campaign.*;
-import static vaadincrm.model.Model.id;
+import static io.crm.model.Campaign.*;
+import static io.crm.QC.id;
 import static vaadincrm.util.VaadinUtil.asMap;
 import static vaadincrm.util.VaadinUtil.handleError;
 
@@ -130,8 +130,8 @@ final public class CampaignTable {
         content.setMargin(true);
 
         content.addComponents(
-                addDetailsField("ID", obj.getLong(Query.id)),
-                addDetailsField("Name", obj.getString(Query.name)));
+                addDetailsField("ID", obj.getLong(QC.id)),
+                addDetailsField("Name", obj.getString(QC.name)));
 
         UI.getCurrent().addWindow(window);
     }
@@ -159,7 +159,7 @@ final public class CampaignTable {
         form.setSpacing(true);
         form.setMargin(true);
 
-        final TextField nameField = new TextField("Name", area.getString(Query.name));
+        final TextField nameField = new TextField("Name", area.getString(QC.name));
         nameField.setNullSettingAllowed(false);
         nameField.setRequired(true);
         form.addComponent(nameField);
@@ -170,7 +170,7 @@ final public class CampaignTable {
         updateButton.addClickListener(event -> {
             nameField.setComponentError(null);
             bus.send(UPDATE_REQUEST, new JsonObject().put(id, area.getLong(id))
-                    .put(Query.name, nameField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
+                    .put(QC.name, nameField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
         });
         form.addComponent(updateButton);
 
@@ -192,7 +192,7 @@ final public class CampaignTable {
                                 .margin()
                                 .spacing()
                                 .addComponent(
-                                        mapBuilder.putAndReturn(Query.name, textField("Name", "")
+                                        mapBuilder.putAndReturn(QC.name, textField("Name", "")
                                                 .width("100%")
                                                 .required()
                                                 .get()),
@@ -201,7 +201,7 @@ final public class CampaignTable {
                                                 .required()
                                                 .addItemWithCaption(0L, "Select Brand")
                                                 .options(QueryService.getService().findAll(FIND_ALL_BRANDS, new JsonObject())
-                                                        .stream().map(j -> new JsonObject().put(Query.id, j.getLong(Query.id)).put(Query.caption, j.getString(Query.name)))
+                                                        .stream().map(j -> new JsonObject().put(QC.id, j.getLong(QC.id)).put(QC.caption, j.getString(QC.name)))
                                                         .collect(Collectors.toList()))
                                                 .value(0L)
                                                 .nullSelectionAllowed(false)
@@ -243,7 +243,7 @@ final public class CampaignTable {
                                                 } else campaign.put(k, value);
                                             });
                                             System.out.println("\n\n" + configureTree.getTree().encodePrettily() + "\n\n");
-                                            campaign.put(Query.tree, configureTree.getTree());
+                                            campaign.put(QC.tree, configureTree.getTree());
                                             bus.send(CREATE_CAMPAIGN, campaign, r -> {
                                                 ui.access(() -> {
                                                     if (r.failed()) {
@@ -277,8 +277,8 @@ final public class CampaignTable {
                                 final JsonArray list = ((JsonArray) e.getValue());
                                 String errorMessages = "";
                                 switch (e.getKey()) {
-                                    case Query.name:
-                                        errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
+                                    case QC.name:
+                                        errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                 }
@@ -305,8 +305,8 @@ final public class CampaignTable {
         data.forEach(v -> {
             JsonObject campaign = (JsonObject) v;
             final Long campaignId = campaign.getLong(id);
-            table.addItem(item(campaignId, campaign.getString(Query.name, ""),
-                    campaign.getJsonObject(Query.brand, new JsonObject()).getString(Query.name, ""),
+            table.addItem(item(campaignId, campaign.getString(QC.name, ""),
+                    campaign.getJsonObject(QC.brand, new JsonObject()).getString(QC.name, ""),
                     parseMongoDate(campaign.getJsonObject(salaryStartDate), null),
                     parseMongoDate(campaign.getJsonObject(salaryEndDate), null),
                     parseMongoDate(campaign.getJsonObject(launchDate), null),

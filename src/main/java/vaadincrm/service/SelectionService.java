@@ -2,8 +2,8 @@ package vaadincrm.service;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.NativeSelect;
+import io.crm.QC;
 import io.vertx.core.json.JsonObject;
-import vaadincrm.model.Query;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,7 +19,8 @@ public class SelectionService {
     private Map<Long, JsonObject> houseMap;
     private Map<Long, JsonObject> areaMap;
 
-    public SelectionService () {}
+    public SelectionService() {
+    }
 
     public SelectionService(Map<Long, JsonObject> dataMap, Map<Long, JsonObject> areaMap) {
         this.houseMap = dataMap;
@@ -48,15 +49,15 @@ public class SelectionService {
                 try {
                     ignoreSelectionChange = true;
                     final Object selectedRegionId = event.getProperty().getValue();
-                    Collection<JsonObject> areas = selectedRegionId.equals(0L) ? areaMap.values() : areaMap.values().stream().filter(j -> j.getJsonObject(Query.region, new JsonObject()).getLong(Query.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
+                    Collection<JsonObject> areas = selectedRegionId.equals(0L) ? areaMap.values() : areaMap.values().stream().filter(j -> j.getJsonObject(QC.region, new JsonObject()).getLong(QC.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
                     areaSelect.clear();
                     areaSelect.removeAllItems();
                     areaSelect.addItem(Zero);
                     areaSelect.setItemCaption(Zero, "Select Area");
                     areas.forEach(c -> {
-                        final Long aId = c.getLong(Query.id);
+                        final Long aId = c.getLong(QC.id);
                         areaSelect.addItem(aId);
-                        areaSelect.setItemCaption(aId, c.getString(Query.name));
+                        areaSelect.setItemCaption(aId, c.getString(QC.name));
                     });
                     areaSelect.setValue(Zero);
                 } finally {
@@ -72,7 +73,7 @@ public class SelectionService {
                     try {
                         ignoreSelectionChange = true;
                         final Object selectedAreaId = e.getProperty().getValue();
-                        final Long regionId = selectedAreaId.equals(0L) ? 0L : areaMap.get(selectedAreaId).getJsonObject(Query.region, new JsonObject()).getLong(Query.id, 0L);
+                        final Long regionId = selectedAreaId.equals(0L) ? 0L : areaMap.get(selectedAreaId).getJsonObject(QC.region, new JsonObject()).getLong(QC.id, 0L);
                         regionSelect.setValue(regionId);
                     } finally {
                         ignoreSelectionChange = false;
@@ -93,9 +94,9 @@ public class SelectionService {
                     refillSelect(areaSelect, selectedRegionId);
 
                     Collection<JsonObject> houses = selectedRegionId.equals(0L) ? houseMap.values() : houseMap.values().stream()
-                            .filter(j -> j.getJsonObject(Query.area, new JsonObject())
-                                    .getJsonObject(Query.region, new JsonObject())
-                                    .getLong(Query.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
+                            .filter(j -> j.getJsonObject(QC.area, new JsonObject())
+                                    .getJsonObject(QC.region, new JsonObject())
+                                    .getLong(QC.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
 
                     refillSelect2(houseSelect, houses);
 
@@ -111,12 +112,12 @@ public class SelectionService {
                     ignoreSelectionChange = true;
                     final Object selectedAreaId = e.getProperty().getValue();
 
-                    final Long regionId = selectedAreaId.equals(0L) ? 0L : areaMap.get(selectedAreaId).getJsonObject(Query.region, new JsonObject()).getLong(Query.id, 0L);
+                    final Long regionId = selectedAreaId.equals(0L) ? 0L : areaMap.get(selectedAreaId).getJsonObject(QC.region, new JsonObject()).getLong(QC.id, 0L);
                     regionSelect.setValue(regionId);
 
                     Collection<JsonObject> houses = selectedAreaId.equals(0L) ? houseMap.values() : houseMap.values().stream()
-                            .filter(j -> j.getJsonObject(Query.area, new JsonObject())
-                                    .getLong(Query.id, 0L).equals(selectedAreaId)).collect(Collectors.toSet());
+                            .filter(j -> j.getJsonObject(QC.area, new JsonObject())
+                                    .getLong(QC.id, 0L).equals(selectedAreaId)).collect(Collectors.toSet());
 
                     refillSelect2(houseSelect, houses);
 
@@ -134,13 +135,13 @@ public class SelectionService {
 
                     final Object houseId = e.getProperty().getValue();
 
-                    final Long areaId = houseId.equals(0L) ? 0L : houseMap.get(houseId).getJsonObject(Query.area, new JsonObject()).getLong(Query.id, 0L);
+                    final Long areaId = houseId.equals(0L) ? 0L : houseMap.get(houseId).getJsonObject(QC.area, new JsonObject()).getLong(QC.id, 0L);
                     areaSelect.setValue(areaId);
 
                     final Long regionId = houseId.equals(0L) ? 0L : houseMap.get(houseId)
-                            .getJsonObject(Query.area, new JsonObject())
-                            .getJsonObject(Query.region, new JsonObject())
-                            .getLong(Query.id, 0L);
+                            .getJsonObject(QC.area, new JsonObject())
+                            .getJsonObject(QC.region, new JsonObject())
+                            .getLong(QC.id, 0L);
                     regionSelect.setValue(regionId);
 
                 } finally {
@@ -151,7 +152,7 @@ public class SelectionService {
     }
 
     private void refillSelect(NativeSelect areaSelect, Object selectedRegionId) {
-        Collection<JsonObject> areas = selectedRegionId.equals(0L) ? areaMap.values() : areaMap.values().stream().filter(j -> j.getJsonObject(Query.region, new JsonObject()).getLong(Query.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
+        Collection<JsonObject> areas = selectedRegionId.equals(0L) ? areaMap.values() : areaMap.values().stream().filter(j -> j.getJsonObject(QC.region, new JsonObject()).getLong(QC.id, 0L).equals(selectedRegionId)).collect(Collectors.toSet());
         refillSelect2(areaSelect, areas, "Select Area");
     }
 
@@ -166,9 +167,9 @@ public class SelectionService {
         houseSelect.addItem(Zero);
         houseSelect.setItemCaption(Zero, caption);
         houses.forEach(c -> {
-            final Long aId = c.getLong(Query.id);
+            final Long aId = c.getLong(QC.id);
             houseSelect.addItem(aId);
-            houseSelect.setItemCaption(aId, c.getString(Query.name));
+            houseSelect.setItemCaption(aId, c.getString(QC.name));
         });
         houseSelect.setValue(Zero);
     }

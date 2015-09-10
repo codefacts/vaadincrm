@@ -6,6 +6,7 @@ import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import io.crm.Events;
 import io.crm.FailureCode;
+import io.crm.QC;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -14,7 +15,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
 import vaadincrm.Resp;
-import vaadincrm.model.Query;
 import vaadincrm.util.FutureResult;
 import vaadincrm.util.VaadinUtil;
 
@@ -44,9 +44,9 @@ final public class LocationTable {
     private static final String HOUSE_PROPERTY = "House";
     private static final String UPDATE_REQUEST = Events.UPDATE_LOCATION;
     private static final String CREATE_REQUEST = Events.CREATE_LOCATION;
-    private static final String PARENT_FIELD = Query.distributionHouse;
+    private static final String PARENT_FIELD = QC.distributionHouse;
     private static final String PARENT_LABEL = Resp.House;
-    private static final String PARENT_ID_FIELD = Query.distributionHouseId;
+    private static final String PARENT_ID_FIELD = QC.distributionHouseId;
 
     private static final Action ADD_ITEM_ACTION = new Action("Add new " + collection);
     private static final Action EDIT_ITEM_ACTION = new Action("Edit this " + collection);
@@ -113,10 +113,10 @@ final public class LocationTable {
         content.setMargin(true);
 
         content.addComponents(
-                addDetailsField("ID", area.getLong(Query.id)),
-                addDetailsField("Name", area.getString(Query.name)),
+                addDetailsField("ID", area.getLong(QC.id)),
+                addDetailsField("Name", area.getString(QC.name)),
                 addDetailsFieldWithLink(PARENT_LABEL, area.getJsonObject(PARENT_FIELD)
-                        .getString(Query.name)));
+                        .getString(QC.name)));
 
         UI.getCurrent().addWindow(window);
     }
@@ -154,7 +154,7 @@ final public class LocationTable {
         form.setSpacing(true);
         form.setMargin(true);
 
-        final TextField nameField = new TextField("Name", area.getString(Query.name));
+        final TextField nameField = new TextField("Name", area.getString(QC.name));
         nameField.setNullSettingAllowed(false);
         nameField.setRequired(true);
         form.addComponent(nameField);
@@ -177,7 +177,7 @@ final public class LocationTable {
             nameField.setComponentError(null);
             parentSelect.setComponentError(null);
             App.bus.send(UPDATE_REQUEST, new JsonObject().put(id, area.getLong(id))
-                    .put(Query.name, nameField.getValue())
+                    .put(QC.name, nameField.getValue())
                     .put(PARENT_FIELD, parentSelect.getValue()), respond(ui, window, nameField, parentSelect, collection + _updated_successfully));
         });
         form.addComponent(updateButton);
@@ -190,9 +190,9 @@ final public class LocationTable {
 
         parentList.forEach(doc -> {
             JsonObject document = (JsonObject) doc;
-            final Long parentId = document.getLong(Query.id);
+            final Long parentId = document.getLong(QC.id);
             parentSelect.addItem(parentId);
-            parentSelect.setItemCaption(parentId, document.getString(Query.name));
+            parentSelect.setItemCaption(parentId, document.getString(QC.name));
         });
         return parentList;
     }
@@ -224,12 +224,12 @@ final public class LocationTable {
                                 final JsonArray list = ((JsonArray) e.getValue());
                                 String errorMessages = "";
                                 switch (e.getKey()) {
-                                    case Query.name:
-                                        errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
+                                    case QC.name:
+                                        errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                     case PARENT_ID_FIELD:
-                                        errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
+                                        errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         parentSelect.setComponentError(errorMessage(errorMessages));
                                         break;
                                 }
@@ -287,7 +287,7 @@ final public class LocationTable {
             nameField.setComponentError(null);
             parentSelect.setComponentError(null);
             App.bus.send(CREATE_REQUEST, new JsonObject()
-                    .put(Query.name, nameField.getValue())
+                    .put(QC.name, nameField.getValue())
                     .put(PARENT_FIELD, parentSelect.getValue()), respond(ui, window, nameField, parentSelect, collection + _created_successfully));
         });
         form.addComponent(updateButton);
@@ -300,13 +300,13 @@ final public class LocationTable {
         data.forEach(v -> {
             JsonObject area = (JsonObject) v;
             final Long areaId = area.getLong(id);
-            table.addItem(item(areaId, area.getString(Query.name), area.getJsonObject(PARENT_FIELD)), areaId);
+            table.addItem(item(areaId, area.getString(QC.name), area.getJsonObject(PARENT_FIELD)), areaId);
             dataMap.put(areaId, area);
         });
     }
 
     private Object[] item(final Long id, final String name, final JsonObject parent) {
-        final Link link = new Link(parent.getString(Query.name), new ExternalResource(""));
+        final Link link = new Link(parent.getString(QC.name), new ExternalResource(""));
         return new Object[]{id, name, link};
     }
 

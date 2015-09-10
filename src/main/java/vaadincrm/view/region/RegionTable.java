@@ -5,6 +5,7 @@ import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import io.crm.Events;
 import io.crm.FailureCode;
+import io.crm.QC;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -13,7 +14,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
 import vaadincrm.Resp;
-import vaadincrm.model.Query;
 import vaadincrm.util.VaadinUtil;
 
 import java.util.HashMap;
@@ -98,8 +98,8 @@ final public class RegionTable {
         content.setMargin(true);
 
         content.addComponents(
-                addDetailsField("ID", obj.getLong(Query.id)),
-                addDetailsField("Name", obj.getString(Query.name)));
+                addDetailsField("ID", obj.getLong(QC.id)),
+                addDetailsField("Name", obj.getString(QC.name)));
 
         UI.getCurrent().addWindow(window);
     }
@@ -127,7 +127,7 @@ final public class RegionTable {
         form.setSpacing(true);
         form.setMargin(true);
 
-        final TextField nameField = new TextField("Name", area.getString(Query.name));
+        final TextField nameField = new TextField("Name", area.getString(QC.name));
         nameField.setNullSettingAllowed(false);
         nameField.setRequired(true);
         form.addComponent(nameField);
@@ -138,7 +138,7 @@ final public class RegionTable {
         updateButton.addClickListener(event -> {
             nameField.setComponentError(null);
             App.bus.send(UPDATE_REQUEST, new JsonObject().put(id, area.getLong(id))
-                    .put(Query.name, nameField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
+                    .put(QC.name, nameField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
         });
         form.addComponent(updateButton);
 
@@ -169,7 +169,7 @@ final public class RegionTable {
         updateButton.addClickListener(event -> {
             nameField.setComponentError(null);
             App.bus.send(CREATE_REQUEST, new JsonObject()
-                    .put(Query.name, nameField.getValue()), respond(ui, window, nameField, collection + " created successfully."));
+                    .put(QC.name, nameField.getValue()), respond(ui, window, nameField, collection + " created successfully."));
         });
         form.addComponent(updateButton);
 
@@ -190,8 +190,8 @@ final public class RegionTable {
                                 final JsonArray list = ((JsonArray) e.getValue());
                                 String errorMessages = "";
                                 switch (e.getKey()) {
-                                    case Query.name:
-                                        errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
+                                    case QC.name:
+                                        errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                 }
@@ -218,7 +218,7 @@ final public class RegionTable {
         data.forEach(v -> {
             JsonObject area = (JsonObject) v;
             final Long areaId = area.getLong(id);
-            table.addItem(item(areaId, area.getString(Query.name)), areaId);
+            table.addItem(item(areaId, area.getString(QC.name)), areaId);
             dataMap.put(areaId, area);
         });
     }

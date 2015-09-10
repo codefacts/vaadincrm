@@ -6,6 +6,7 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import io.crm.Events;
 import io.crm.FailureCode;
+import io.crm.QC;
 import io.crm.util.SimpleCounter;
 import io.crm.util.Touple1;
 import io.crm.util.Touple2;
@@ -16,9 +17,8 @@ import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.Resp;
-import vaadincrm.model.EmployeeType;
-import vaadincrm.model.Query;
-import vaadincrm.model.User;
+import io.crm.model.EmployeeType;
+import io.crm.model.User;
 import vaadincrm.service.QueryService;
 import vaadincrm.service.SelectionService;
 import vaadincrm.util.*;
@@ -41,7 +41,7 @@ import static io.crm.util.ExceptionUtil.sallowCall;
 import static io.crm.util.Util.*;
 import static vaadincrm.App.bus;
 import static io.crm.Events.CREATE_EMPLOYEE;
-import static vaadincrm.model.Model.id;
+import static io.crm.QC.id;
 import static vaadincrm.util.VaadinUtil.asMap;
 import static vaadincrm.util.VaadinUtil.handleError;
 import static vaadincrm.util.VaadinUtil.showConfirmDialog;
@@ -180,8 +180,8 @@ final public class EmployeeTable {
         content.setMargin(true);
 
         content.addComponents(
-                addDetailsField("ID", obj.getLong(Query.id)),
-                addDetailsField("Name", obj.getString(Query.name)));
+                addDetailsField("ID", obj.getLong(QC.id)),
+                addDetailsField("Name", obj.getString(QC.name)));
 
         UI.getCurrent().addWindow(window);
     }
@@ -209,7 +209,7 @@ final public class EmployeeTable {
         form.setSpacing(true);
         form.setMargin(true);
 
-        final TextField nameField = new TextField("Name", area.getString(Query.name));
+        final TextField nameField = new TextField("Name", area.getString(QC.name));
         nameField.setNullSettingAllowed(false);
         nameField.setRequired(true);
         form.addComponent(nameField);
@@ -220,7 +220,7 @@ final public class EmployeeTable {
         updateButton.addClickListener(event -> {
             nameField.setComponentError(null);
             bus.send(UPDATE_REQUEST, new JsonObject().put(id, area.getLong(id))
-                    .put(Query.name, nameField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
+                    .put(QC.name, nameField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
         });
         form.addComponent(updateButton);
 
@@ -319,23 +319,23 @@ final public class EmployeeTable {
 
         final List<JsonObject> houseList = QueryService.getService().findAll(Events.FIND_ALL_HOUSES, new JsonObject());
         houseList.forEach(j -> {
-            final Long objId = j.getLong(Query.id);
+            final Long objId = j.getLong(QC.id);
             houseSelect.addItem(objId);
-            houseSelect.setItemCaption(objId, j.getString(Query.name));
+            houseSelect.setItemCaption(objId, j.getString(QC.name));
         });
 
         final List<JsonObject> areaList = QueryService.getService().findAll(Events.FIND_ALL_AREAS, new JsonObject());
         areaList.forEach(j -> {
-            final Long objId = j.getLong(Query.id);
+            final Long objId = j.getLong(QC.id);
             areaSelect.addItem(objId);
-            areaSelect.setItemCaption(objId, j.getString(Query.name));
+            areaSelect.setItemCaption(objId, j.getString(QC.name));
         });
 
         final List<JsonObject> regionList = QueryService.getService().findAll(Events.FIND_ALL_REGIONS, new JsonObject());
         regionList.forEach(j -> {
-            final Long objId = j.getLong(Query.id);
+            final Long objId = j.getLong(QC.id);
             regionSelect.addItem(objId);
-            regionSelect.setItemCaption(objId, j.getString(Query.name));
+            regionSelect.setItemCaption(objId, j.getString(QC.name));
         });
 
         houseSelect.setValue(Zero);
@@ -346,8 +346,8 @@ final public class EmployeeTable {
         areaSelect.setWidth("100%");
         regionSelect.setWidth("100%");
 
-        new SelectionService(houseList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)),
-                areaList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)))
+        new SelectionService(houseList.stream().collect(Collectors.toMap(j -> j.getLong(QC.id), j -> j)),
+                areaList.stream().collect(Collectors.toMap(j -> j.getLong(QC.id), j -> j)))
                 .onAreaRegionSelection(houseSelect, areaSelect, regionSelect);
 
         final FormLayout form = formLayout()
@@ -383,23 +383,23 @@ final public class EmployeeTable {
 
         final List<JsonObject> houseList = QueryService.getService().findAll(Events.FIND_ALL_HOUSES, new JsonObject());
         houseList.forEach(j -> {
-            final Long objId = j.getLong(Query.id);
+            final Long objId = j.getLong(QC.id);
             houseSelect.addItem(objId);
-            houseSelect.setItemCaption(objId, j.getString(Query.name));
+            houseSelect.setItemCaption(objId, j.getString(QC.name));
         });
 
         final List<JsonObject> areaList = QueryService.getService().findAll(Events.FIND_ALL_AREAS, new JsonObject());
         areaList.forEach(j -> {
-            final Long objId = j.getLong(Query.id);
+            final Long objId = j.getLong(QC.id);
             areaSelect.addItem(objId);
-            areaSelect.setItemCaption(objId, j.getString(Query.name));
+            areaSelect.setItemCaption(objId, j.getString(QC.name));
         });
 
         final List<JsonObject> regionList = QueryService.getService().findAll(Events.FIND_ALL_REGIONS, new JsonObject());
         regionList.forEach(j -> {
-            final Long objId = j.getLong(Query.id);
+            final Long objId = j.getLong(QC.id);
             regionSelect.addItem(objId);
-            regionSelect.setItemCaption(objId, j.getString(Query.name));
+            regionSelect.setItemCaption(objId, j.getString(QC.name));
         });
 
         houseSelect.setValue(Zero);
@@ -410,8 +410,8 @@ final public class EmployeeTable {
         areaSelect.setWidth("100%");
         regionSelect.setWidth("100%");
 
-        new SelectionService(houseList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)),
-                areaList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)))
+        new SelectionService(houseList.stream().collect(Collectors.toMap(j -> j.getLong(QC.id), j -> j)),
+                areaList.stream().collect(Collectors.toMap(j -> j.getLong(QC.id), j -> j)))
                 .onAreaRegionSelection(houseSelect, areaSelect, regionSelect);
 
         final FormLayout form = formLayout()
@@ -442,16 +442,16 @@ final public class EmployeeTable {
 
         final List<JsonObject> areaList = QueryService.getService().findAll(Events.FIND_ALL_AREAS, new JsonObject());
         areaList.forEach(j -> {
-            final Long objId = j.getLong(Query.id);
+            final Long objId = j.getLong(QC.id);
             areaSelect.addItem(objId);
-            areaSelect.setItemCaption(objId, j.getString(Query.name));
+            areaSelect.setItemCaption(objId, j.getString(QC.name));
         });
 
         final List<JsonObject> regionList = QueryService.getService().findAll(Events.FIND_ALL_REGIONS, new JsonObject());
         regionList.forEach(j -> {
-            final Long objId = j.getLong(Query.id);
+            final Long objId = j.getLong(QC.id);
             regionSelect.addItem(objId);
-            regionSelect.setItemCaption(objId, j.getString(Query.name));
+            regionSelect.setItemCaption(objId, j.getString(QC.name));
         });
 
         areaSelect.setValue(Zero);
@@ -462,8 +462,8 @@ final public class EmployeeTable {
 
         new SelectionService(QueryService.getService()
                 .findAll(Events.FIND_ALL_HOUSES, new JsonObject())
-                .stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)),
-                areaList.stream().collect(Collectors.toMap(j -> j.getLong(Query.id), j -> j)))
+                .stream().collect(Collectors.toMap(j -> j.getLong(QC.id), j -> j)),
+                areaList.stream().collect(Collectors.toMap(j -> j.getLong(QC.id), j -> j)))
                 .onAreaRegionSelection(areaSelect, regionSelect);
 
         final FormLayout form = formLayout()
@@ -520,7 +520,7 @@ final public class EmployeeTable {
                 .spacing()
                 .margin()
                 .addComponent(
-                        mapBuilder.putAndReturn(Query.name, textField("Name", "")
+                        mapBuilder.putAndReturn(QC.name, textField("Name", "")
                                 .nullSettingAllowed(false)
                                 .required(true)
                                 .width("100%")
@@ -568,8 +568,8 @@ final public class EmployeeTable {
                                 final JsonArray list = ((JsonArray) e.getValue());
                                 String errorMessages = "";
                                 switch (e.getKey()) {
-                                    case Query.name:
-                                        errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
+                                    case QC.name:
+                                        errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                 }
@@ -594,9 +594,9 @@ final public class EmployeeTable {
     public void populateData(final JsonArray data) {
         data.forEach(v -> {
             JsonObject user = (JsonObject) v;
-            final String userId = user.getString(Query.userId);
+            final String userId = user.getString(QC.userId);
 
-            table.addItem(item(userId, user.getString(Query.name, ""), user.getString(User.mobile, ""),
+            table.addItem(item(userId, user.getString(QC.name, ""), user.getString(User.mobile, ""),
                     user.getString(User.username, ""),
                     user.getJsonObject(User.userType, new JsonObject()).getString(User.name),
                     sallowCall(() -> parseMongoDate(user.getJsonObject(User.joinDate))),
@@ -633,10 +633,10 @@ final public class EmployeeTable {
 
         userTypes.forEach(u -> {
             JsonObject userType = (JsonObject) u;
-            final Long typeId = userType.getLong(Query.id);
+            final Long typeId = userType.getLong(QC.id);
             nativeSelect.addItem(typeId);
-            nativeSelect.setItemCaption(typeId, String.format("%s (%s)", userType.getString(Query.name, ""),
-                    userType.getString(Query.prefix, "")));
+            nativeSelect.setItemCaption(typeId, String.format("%s (%s)", userType.getString(QC.name, ""),
+                    userType.getString(QC.prefix, "")));
         });
 
         nativeSelect.setItemCaption(Zero, "Select User Type");
@@ -654,12 +654,12 @@ final public class EmployeeTable {
         final SimpleCounter totalUsers = new SimpleCounter();
         userTypes.forEach(u -> {
             JsonObject userType = (JsonObject) u;
-            final Long typeId = userType.getLong(Query.id);
+            final Long typeId = userType.getLong(QC.id);
             userTypeSelect.addItem(typeId);
-            userTypeSelect.setItemCaption(typeId, String.format("%s (%s): %d", userType.getString(Query.name, ""),
-                    userType.getString(Query.prefix, ""),
-                    userType.getLong(Query.count, 0L)));
-            totalUsers.counter += userType.getLong(Query.count, 0L);
+            userTypeSelect.setItemCaption(typeId, String.format("%s (%s): %d", userType.getString(QC.name, ""),
+                    userType.getString(QC.prefix, ""),
+                    userType.getLong(QC.count, 0L)));
+            totalUsers.counter += userType.getLong(QC.count, 0L);
         });
         userTypeSelect.setValue(ZERO);
         userTypeSelect.setItemCaption(ZERO, "All Users: " + totalUsers.counter);
@@ -672,7 +672,7 @@ final public class EmployeeTable {
                 return;
             }
 
-            filterAndUpdateTable(new JsonObject().put(Query.userTypeId, userTypeId));
+            filterAndUpdateTable(new JsonObject().put(QC.userTypeId, userTypeId));
         });
 
         userTypeSelect.setNullSelectionAllowed(false);
@@ -681,7 +681,7 @@ final public class EmployeeTable {
     private void filterAndUpdateTable(JsonObject criteria) {
         final UI ui = UI.getCurrent();
         bus.send(Events.FIND_ALL_EMPLOYEES, new JsonObject()
-                .put(Query.params, criteria), (AsyncResult<Message<JsonArray>> r) -> {
+                .put(QC.params, criteria), (AsyncResult<Message<JsonArray>> r) -> {
             ui.access(() -> {
                 if (r.failed()) {
                     Notification.show("Error in server. Please try again later.", Notification.Type.ERROR_MESSAGE);

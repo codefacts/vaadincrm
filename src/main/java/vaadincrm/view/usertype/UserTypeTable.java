@@ -5,6 +5,7 @@ import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import io.crm.Events;
 import io.crm.FailureCode;
+import io.crm.QC;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -13,7 +14,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.App;
 import vaadincrm.Resp;
-import vaadincrm.model.Query;
 import vaadincrm.util.VaadinUtil;
 
 import java.util.HashMap;
@@ -105,9 +105,9 @@ final public class UserTypeTable {
         content.setMargin(true);
 
         content.addComponents(
-                addDetailsField("ID", obj.getLong(Query.id)),
-                addDetailsField("Name", obj.getString(Query.name)),
-                addDetailsField("Label", obj.getString(Query.label)));
+                addDetailsField("ID", obj.getLong(QC.id)),
+                addDetailsField("Name", obj.getString(QC.name)),
+                addDetailsField("Label", obj.getString(QC.label)));
 
         UI.getCurrent().addWindow(window);
     }
@@ -135,12 +135,12 @@ final public class UserTypeTable {
         form.setSpacing(true);
         form.setMargin(true);
 
-        final TextField nameField = new TextField("Name", area.getString(Query.name));
+        final TextField nameField = new TextField("Name", area.getString(QC.name));
         nameField.setNullSettingAllowed(false);
         nameField.setRequired(true);
         form.addComponent(nameField);
 
-        final TextField labelField = new TextField("Label", area.getString(Query.label));
+        final TextField labelField = new TextField("Label", area.getString(QC.label));
         labelField.setNullSettingAllowed(false);
         labelField.setRequired(true);
         form.addComponent(labelField);
@@ -151,8 +151,8 @@ final public class UserTypeTable {
         updateButton.addClickListener(event -> {
             nameField.setComponentError(null);
             App.bus.send(UPDATE_REQUEST, new JsonObject().put(id, area.getLong(id))
-                    .put(Query.name, nameField.getValue())
-                    .put(Query.label, labelField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
+                    .put(QC.name, nameField.getValue())
+                    .put(QC.label, labelField.getValue()), respond(ui, window, nameField, collection + "updated successfully."));
         });
         form.addComponent(updateButton);
 
@@ -188,8 +188,8 @@ final public class UserTypeTable {
         updateButton.addClickListener(event -> {
             nameField.setComponentError(null);
             App.bus.send(CREATE_REQUEST, new JsonObject()
-                    .put(Query.name, nameField.getValue())
-                    .put(Query.label, labelField.getValue()), respond(ui, window, nameField, collection + " created successfully."));
+                    .put(QC.name, nameField.getValue())
+                    .put(QC.label, labelField.getValue()), respond(ui, window, nameField, collection + " created successfully."));
         });
         form.addComponent(updateButton);
 
@@ -210,8 +210,8 @@ final public class UserTypeTable {
                                 final JsonArray list = ((JsonArray) e.getValue());
                                 String errorMessages = "";
                                 switch (e.getKey()) {
-                                    case Query.name:
-                                        errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(Query.message) + "").collect(Collectors.toList()));
+                                    case QC.name:
+                                        errorMessages = list == null ? Resp.value_is_invalid : String.join("\n", list.stream().map(j -> asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
                                 }
@@ -238,8 +238,8 @@ final public class UserTypeTable {
         data.forEach(v -> {
             JsonObject userType = (JsonObject) v;
             final Long areaId = userType.getLong(id);
-            table.addItem(item(areaId, userType.getString(Query.name), userType.getString(Query.prefix),
-                    userType.getString(Query.label), userType.getLong(Query.count)), areaId);
+            table.addItem(item(areaId, userType.getString(QC.name), userType.getString(QC.prefix),
+                    userType.getString(QC.label), userType.getLong(QC.count)), areaId);
             dataMap.put(areaId, userType);
         });
     }
