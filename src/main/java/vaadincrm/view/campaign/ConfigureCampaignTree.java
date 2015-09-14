@@ -15,6 +15,7 @@ import io.crm.model.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.BiFunction;
 
 import static io.crm.QC.id;
@@ -112,8 +113,8 @@ final public class ConfigureCampaignTree {
         return treeTable;
     }
 
-    public JsonObject getTree() {
-        final JsonObject root = new JsonObject();
+    public JsonArray getTree() {
+        final List<JsonObject> root = new ArrayList<>();
         for (Object region : getOrDefault(treeTable.rootItemIds(), Collections.EMPTY_LIST)) {
             if (!checkBoxAt(region).getValue()) continue;
 
@@ -121,7 +122,7 @@ final public class ConfigureCampaignTree {
             final JsonObject regionJson = new JsonObject()
                     .put(QC.id, regionId);
 
-            final JsonObject areaListJson = new JsonObject();
+            final List<JsonObject> areaListJson = new ArrayList<>();
             getOrDefault(treeTable.getChildren(region), Collections.EMPTY_LIST).forEach(areaList -> {
 
                 for (Object area : getOrDefault(treeTable.getChildren(areaList), Collections.EMPTY_LIST)) {
@@ -130,8 +131,8 @@ final public class ConfigureCampaignTree {
                     final Long areaId = getId((String) area, QC.area);
                     final JsonObject areaJson = new JsonObject().put(QC.id, areaId);
 
-                    final JsonObject houseListJson = new JsonObject();
-                    final JsonObject acListJson = new JsonObject();
+                    final List<JsonObject> houseListJson = new ArrayList<>();
+                    final List<JsonObject> acListJson = new ArrayList<>();
                     getOrDefault(treeTable.getChildren(area), Collections.EMPTY_LIST).forEach(houseAcList -> {
 
                         if (houseAcList.toString().startsWith(QC._all_area_house_id)) {
@@ -142,9 +143,9 @@ final public class ConfigureCampaignTree {
                                 final Long houseId = getId((String) house, QC.house);
                                 final JsonObject houseJson = new JsonObject().put(QC.id, houseId);
 
-                                final JsonObject brListJson = new JsonObject();
-                                final JsonObject locationListJson = new JsonObject();
-                                final JsonObject supListJson = new JsonObject();
+                                final List<JsonObject> brListJson = new ArrayList<>();
+                                final List<JsonObject> locationListJson = new ArrayList<>();
+                                final List<JsonObject> supListJson = new ArrayList<>();
 
                                 getOrDefault(treeTable.getChildren(house), Collections.EMPTY_LIST).forEach(brLocSupList -> {
 
@@ -152,7 +153,7 @@ final public class ConfigureCampaignTree {
                                         for (Object brId : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
                                             if (!checkBoxAt(brId).getValue()) continue;
                                             final JsonObject brJson = new JsonObject().put(QC.id, brId);
-                                            brListJson.put(brId.toString(), brJson);
+                                            brListJson.add(brJson);
                                         }
                                     }
 
@@ -161,7 +162,7 @@ final public class ConfigureCampaignTree {
                                             if (!checkBoxAt(location).getValue()) continue;
                                             final Long locId = getId(location.toString(), QC.location);
                                             final JsonObject locJson = new JsonObject().put(QC.id, locId);
-                                            locationListJson.put(locId.toString(), locJson);
+                                            locationListJson.add(locJson);
                                         }
                                     }
 
@@ -169,7 +170,7 @@ final public class ConfigureCampaignTree {
                                         for (Object supId : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
                                             if (!checkBoxAt(supId).getValue()) continue;
                                             final JsonObject supJson = new JsonObject().put(QC.id, supId);
-                                            supListJson.put(supId.toString(), supJson);
+                                            supListJson.add(supJson);
                                         }
                                     }
                                 });
@@ -178,7 +179,7 @@ final public class ConfigureCampaignTree {
                                 houseJson.put(mc.locations.name(), locationListJson);
                                 houseJson.put(QC.brs, brListJson);
 
-                                houseListJson.put(houseId.toString(), houseJson);
+                                houseListJson.add(houseJson);
                             }
                         } else if (houseAcList.toString().startsWith(QC._all_area_ac_id)) {
 
@@ -186,7 +187,7 @@ final public class ConfigureCampaignTree {
                                 if (!checkBoxAt(acId).getValue()) continue;
 
                                 final JsonObject acJson = new JsonObject().put(QC.id, acId);
-                                acListJson.put(acId.toString(), acJson);
+                                acListJson.add(acJson);
                             }
                         }
                     });
@@ -194,14 +195,14 @@ final public class ConfigureCampaignTree {
                     areaJson.put(mc.distribution_houses.name(), houseListJson);
                     areaJson.put(QC.areaCoordinators, acListJson);
 
-                    areaListJson.put(areaId.toString(), areaJson);
+                    areaListJson.add(areaJson);
                 }
             });
 
             regionJson.put(mc.areas.name(), areaListJson);
-            root.put(regionId.toString(), regionJson);
+            root.add(regionJson);
         }
-        return root;
+        return new JsonArray(root);
     }
 
     private Long getId(final String idStr, final String prefix) {
