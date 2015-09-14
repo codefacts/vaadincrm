@@ -19,6 +19,9 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-context:4.1.7.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:4.1.7.RELEASE" level="project" />
     <orderEntry type="module" module-name="core" />
+    <orderEntry type="module" module-name="schema-validation" />
+    <orderEntry type="library" name="Maven: javax.el:javax.el-api:2.2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.web:javax.el:2.2.4" level="project" />
     <orderEntry type="module" module-name="crm-query" />
     <orderEntry type="module" module-name="web" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-web:3.0.0" level="project" />
