@@ -11,7 +11,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import vaadincrm.Resp;
 import vaadincrm.exceptions.InvalidArgumentException;
-import vaadincrm.model.User;
 
 import java.text.DateFormat;
 import java.text.ParseException;

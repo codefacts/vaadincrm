@@ -23,12 +23,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static io.crm.QC.id;
 import static io.crm.util.ExceptionUtil.toRuntime;
 import static io.crm.util.Util.isEmptyOrNullOrSpaces;
 import static vaadincrm.Resp._created_successfully;
 import static vaadincrm.Resp._updated_successfully;
 import static vaadincrm.Resp.value_is_invalid;
-import static vaadincrm.model.Model.id;
 import static vaadincrm.util.VaadinUtil.asMap;
 import static vaadincrm.util.VaadinUtil.errorMessage;
 
@@ -113,7 +113,7 @@ final public class LocationTable {
         content.setMargin(true);
 
         content.addComponents(
-                addDetailsField("ID", area.getLong(QC.id)),
+                addDetailsField("ID", area.getLong(id)),
                 addDetailsField("Name", area.getString(QC.name)),
                 addDetailsFieldWithLink(PARENT_LABEL, area.getJsonObject(PARENT_FIELD)
                         .getString(QC.name)));
@@ -190,7 +190,7 @@ final public class LocationTable {
 
         parentList.forEach(doc -> {
             JsonObject document = (JsonObject) doc;
-            final Long parentId = document.getLong(QC.id);
+            final Long parentId = document.getLong(id);
             parentSelect.addItem(parentId);
             parentSelect.setItemCaption(parentId, document.getString(QC.name));
         });

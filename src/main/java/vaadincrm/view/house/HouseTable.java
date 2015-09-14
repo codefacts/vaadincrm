@@ -23,9 +23,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.vaadin.server.Sizeable.Unit.PIXELS;
+import static io.crm.QC.id;
 import static io.crm.util.ExceptionUtil.toRuntime;
 import static vaadincrm.Resp.*;
-import static vaadincrm.model.Model.id;
 
 final public class HouseTable {
     public static final String collection = "Distribution House";
@@ -125,7 +125,7 @@ final public class HouseTable {
 
         final JsonObject area = house.getJsonObject(PARENT_FIELD, new JsonObject());
         content.addComponents(
-                addDetailsField("ID", house.getLong(QC.id)),
+                addDetailsField("ID", house.getLong(id)),
                 addDetailsField("Name", house.getString(QC.name)),
                 addDetailsFieldWithLink(PARENT_LABEL, area
                         .getString(QC.name)),
@@ -160,7 +160,7 @@ final public class HouseTable {
         table.addContainerProperty("Locations", Link.class, "");
         jsonArray.forEach(j -> {
             JsonObject loc = (JsonObject) j;
-            table.addItem(new Object[]{new Link(loc.getString(QC.name), new ExternalResource(""))}, loc.getLong(QC.id));
+            table.addItem(new Object[]{new Link(loc.getString(QC.name), new ExternalResource(""))}, loc.getLong(id));
         });
 
         return table;
@@ -263,7 +263,7 @@ final public class HouseTable {
         table.addContainerProperty("Locations", Link.class, "");
         house.getJsonArray(QC.locations, new JsonArray()).forEach(j -> {
             JsonObject loc = (JsonObject) j;
-            table.addItem(new Object[]{new Link(loc.getString(QC.name), new ExternalResource(""))}, loc.getLong(QC.id));
+            table.addItem(new Object[]{new Link(loc.getString(QC.name), new ExternalResource(""))}, loc.getLong(id));
         });
 
         table.addActionHandler(new Action.Handler() {
@@ -314,7 +314,7 @@ final public class HouseTable {
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        houseSelect.setValue(house.getLong(QC.id));
+        houseSelect.setValue(house.getLong(id));
         form.addComponent(houseSelect);
 
 
@@ -357,8 +357,8 @@ final public class HouseTable {
 
             house.getJsonArray(QC.locations, new JsonArray()).forEach(j -> {
                 JsonObject jo = (JsonObject) j;
-                if (jo.getLong(QC.id).equals(locationId)) {
-                    jsonObject.put(QC.id, locationId)
+                if (jo.getLong(id).equals(locationId)) {
+                    jsonObject.put(id, locationId)
                             .put(QC.name, jo.getString(QC.name))
                             .put(QC.distributionHouse, houseSelect.getValue());
                 }
@@ -421,9 +421,9 @@ final public class HouseTable {
             final UI ui = UI.getCurrent();
             final JsonObject jsonObject = (locationId == null || locationId.equals(0L))
                     ? new JsonObject().put(QC.name, nameField.getValue())
-                    : new JsonObject().put(QC.id, locationId).put(QC.name, nameField.getValue());
+                    : new JsonObject().put(id, locationId).put(QC.name, nameField.getValue());
 
-            jsonObject.put(QC.distributionHouse, house.getLong(QC.id, 0L));
+            jsonObject.put(QC.distributionHouse, house.getLong(id, 0L));
 
             App.bus.send(reqAddress, jsonObject, r -> {
                 ui.access(() -> {
@@ -512,10 +512,10 @@ final public class HouseTable {
         final Map<Long, JsonObject> map = new LinkedHashMap<>();
         parentList.forEach(doc -> {
             JsonObject document = (JsonObject) doc;
-            final Long parentId = document.getLong(QC.id);
+            final Long parentId = document.getLong(id);
             parentSelect.addItem(parentId);
             parentSelect.setItemCaption(parentId, document.getString(QC.name));
-            map.put(document.getLong(QC.id, 0L), document);
+            map.put(document.getLong(id, 0L), document);
         });
         return map;
     }
@@ -551,7 +551,7 @@ final public class HouseTable {
                                         errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> VaadinUtil.asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         nameField.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;
-                                    case PARENT_ID_FIELD:
+                                    case "areaId":
                                         errorMessages = list == null ? value_is_invalid : String.join("\n", list.stream().map(j -> VaadinUtil.asMap(j).get(QC.message) + "").collect(Collectors.toList()));
                                         parentSelect.setComponentError(VaadinUtil.errorMessage(errorMessages));
                                         break;

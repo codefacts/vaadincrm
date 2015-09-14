@@ -23,8 +23,6 @@ final public class AllModuleStarterVerticle extends AbstractVerticle {
         }));
         getVertx().deployVerticle(io.crm.web.MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
-        getVertx().deployVerticle(io.crm.web.MainVerticle.class.getName(), taskCoordinator.add(v -> {
-        }));
     }
 
     @Override

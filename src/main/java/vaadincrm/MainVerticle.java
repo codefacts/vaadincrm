@@ -9,7 +9,6 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import vaadincrm.codec.*;
-import vaadincrm.model.*;
 
 import java.io.IOException;
 import java.io.InputStream;

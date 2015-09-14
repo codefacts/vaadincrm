@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.crm.QC.id;
 import static io.crm.util.Util.isEmptyOrNullOrSpaces;
-import static vaadincrm.model.Model.id;
 import static vaadincrm.util.VaadinUtil.asMap;
 
 /**
@@ -105,7 +105,7 @@ final public class UserTypeTable {
         content.setMargin(true);
 
         content.addComponents(
-                addDetailsField("ID", obj.getLong(QC.id)),
+                addDetailsField("ID", obj.getLong(id)),
                 addDetailsField("Name", obj.getString(QC.name)),
                 addDetailsField("Label", obj.getString(QC.label)));
 
