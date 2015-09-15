@@ -3,11 +3,9 @@ package vaadincrm.view.campaign;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Field;
 import com.vaadin.ui.TreeTable;
 import io.crm.QC;
 import io.crm.mc;
-import io.crm.util.Touple2Boolean;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.crm.model.*;
@@ -152,7 +150,7 @@ final public class ConfigureCampaignTree {
                                     if (brLocSupList.toString().startsWith(QC._all_house_br_id)) {
                                         for (Object brId : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
                                             if (!checkBoxAt(brId).getValue()) continue;
-                                            final JsonObject brJson = new JsonObject().put(QC.id, brId);
+                                            final JsonObject brJson = new JsonObject().put(QC.userId, brId);
                                             brListJson.add(brJson);
                                         }
                                     }
@@ -169,7 +167,7 @@ final public class ConfigureCampaignTree {
                                     if (brLocSupList.toString().startsWith(QC._all_house_sup_id)) {
                                         for (Object supId : getOrDefault(treeTable.getChildren(brLocSupList), Collections.EMPTY_LIST)) {
                                             if (!checkBoxAt(supId).getValue()) continue;
-                                            final JsonObject supJson = new JsonObject().put(QC.id, supId);
+                                            final JsonObject supJson = new JsonObject().put(QC.userId, supId);
                                             supListJson.add(supJson);
                                         }
                                     }
@@ -186,13 +184,13 @@ final public class ConfigureCampaignTree {
                             for (Object acId : getOrDefault(treeTable.getChildren(houseAcList), Collections.EMPTY_LIST)) {
                                 if (!checkBoxAt(acId).getValue()) continue;
 
-                                final JsonObject acJson = new JsonObject().put(QC.id, acId);
+                                final JsonObject acJson = new JsonObject().put(QC.userId, acId);
                                 acListJson.add(acJson);
                             }
                         }
                     });
 
-                    areaJson.put(mc.distribution_houses.name(), houseListJson);
+                    areaJson.put(mc.distributionHouses.name(), houseListJson);
                     areaJson.put(QC.areaCoordinators, acListJson);
 
                     areaListJson.add(areaJson);
@@ -269,7 +267,7 @@ final public class ConfigureCampaignTree {
             for (final Object areaObj : areas) {
                 final JsonObject area = (JsonObject) areaObj;
                 final Long areaId = area.getLong(id);
-                final JsonArray houses = area.getJsonArray(mc.distribution_houses.name(), emptyArray);
+                final JsonArray houses = area.getJsonArray(mc.distributionHouses.name(), emptyArray);
 
                 final Object areaItemId = treeTable.addItem(item(QC.area + "-" + areaId, area.getString(Area.name)), QC.area + "-" + areaId);
                 treeTable.setParent(areaItemId, areaListItemId);
