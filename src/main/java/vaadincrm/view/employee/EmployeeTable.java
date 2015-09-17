@@ -280,10 +280,10 @@ final public class EmployeeTable {
                                     content.removeAllComponents();
                                     touple1.t1.getOkButton().setCaption(CREATE);
 
-                                    if (userTypeId == EmployeeType.area_coordinator.id) {
+                                    if (userTypeId == EmployeeType.areaCoordinator.id) {
                                         content.addComponent(createACForm(fieldMap));
                                         window.setCaption("Select Area for Area Coordinator");
-                                    } else if (userTypeId == EmployeeType.br_supervisor.id) {
+                                    } else if (userTypeId == EmployeeType.brSupervisor.id) {
                                         content.addComponent(createSupForm(fieldMap));
                                         window.setCaption("Select Distribution Houses for Supervisor");
                                     } else if (userTypeId == EmployeeType.br.id) {
@@ -491,8 +491,8 @@ final public class EmployeeTable {
     }
 
     private String okButtonText(final long userTypeId) {
-        return userTypeId == EmployeeType.area_coordinator.id
-                || userTypeId == EmployeeType.br_supervisor.id
+        return userTypeId == EmployeeType.areaCoordinator.id
+                || userTypeId == EmployeeType.brSupervisor.id
                 || userTypeId == EmployeeType.br.id ? NEXT : CREATE;
     }
 

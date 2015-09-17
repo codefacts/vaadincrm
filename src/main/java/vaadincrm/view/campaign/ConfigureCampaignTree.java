@@ -441,8 +441,8 @@ final public class ConfigureCampaignTree {
 
     private final boolean isTermilan(final String childObj) {
         return childObj.startsWith(EmployeeType.br.prefix)
-                || childObj.startsWith(EmployeeType.area_coordinator.prefix)
-                || childObj.startsWith(EmployeeType.br_supervisor.prefix)
+                || childObj.startsWith(EmployeeType.areaCoordinator.prefix)
+                || childObj.startsWith(EmployeeType.brSupervisor.prefix)
                 || childObj.startsWith(QC.location);
     }
 
