@@ -10,8 +10,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="common-crm" level="project" />
-    <orderEntry type="module" module-name="common" />
+    <orderEntry type="module" module-name="common-crm" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-mongo-client:3.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-async:3.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:bson:3.0.2" level="project" />
@@ -22,7 +21,7 @@
     <orderEntry type="module" module-name="schema-validation" />
     <orderEntry type="library" name="Maven: javax.el:javax.el-api:2.2.4" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.web:javax.el:2.2.4" level="project" />
-    <orderEntry type="module" module-name="crm-query" />
+    <orderEntry type="module" module-name="query" />
     <orderEntry type="module" module-name="web" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-web:3.0.0" level="project" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-auth-common:3.0.0" level="project" />
