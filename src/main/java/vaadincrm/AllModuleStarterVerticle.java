@@ -2,6 +2,7 @@ package vaadincrm;
 
 import io.crm.util.TaskCoordinator;
 import io.crm.util.TaskCoordinatorBuilder;
+import io.crm.web.WebMainVerticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 
@@ -21,7 +22,7 @@ final public class AllModuleStarterVerticle extends AbstractVerticle {
         }));
         getVertx().deployVerticle(io.crm.query.MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
-        getVertx().deployVerticle(io.crm.web.MainVerticle.class.getName(), taskCoordinator.add(v -> {
+        getVertx().deployVerticle(WebMainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
     }
 
@@ -37,7 +38,7 @@ final public class AllModuleStarterVerticle extends AbstractVerticle {
         }));
         getVertx().undeploy(io.crm.query.MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
-        getVertx().undeploy(io.crm.web.MainVerticle.class.getName(), taskCoordinator.add(v -> {
+        getVertx().undeploy(WebMainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
     }
 }
