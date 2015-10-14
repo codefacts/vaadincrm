@@ -2,7 +2,7 @@ package vaadincrm;
 
 import io.crm.util.TaskCoordinator;
 import io.crm.util.TaskCoordinatorBuilder;
-import io.crm.web.WebMainVerticle;
+import io.crm.web.MainVerticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 
@@ -16,13 +16,13 @@ final public class AllModuleStarterVerticle extends AbstractVerticle {
                 .onSuccess(() -> startFuture.complete())
                 .onError(e -> startFuture.fail(e)).get();
 
-        getVertx().deployVerticle(MainVerticle.class.getName(), taskCoordinator.add(v -> {
+        getVertx().deployVerticle(vaadincrm.MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
         getVertx().deployVerticle(io.crm.core.MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
         getVertx().deployVerticle(io.crm.query.MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
-        getVertx().deployVerticle(WebMainVerticle.class.getName(), taskCoordinator.add(v -> {
+        getVertx().deployVerticle(MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
     }
 
@@ -32,13 +32,13 @@ final public class AllModuleStarterVerticle extends AbstractVerticle {
                 .onSuccess(() -> stopFuture.complete())
                 .onError(e -> stopFuture.fail(e)).get();
 
-        getVertx().undeploy(MainVerticle.class.getName(), taskCoordinator.add(v -> {
+        getVertx().undeploy(vaadincrm.MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
         getVertx().undeploy(io.crm.core.MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
         getVertx().undeploy(io.crm.query.MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
-        getVertx().undeploy(WebMainVerticle.class.getName(), taskCoordinator.add(v -> {
+        getVertx().undeploy(MainVerticle.class.getName(), taskCoordinator.add(v -> {
         }));
     }
 }
