@@ -2,19 +2,11 @@ package vaadincrm.util;
 
 import com.vaadin.server.AbstractErrorMessage;
 import com.vaadin.server.ErrorMessage;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import io.crm.intfs.*;
-import io.crm.intfs.Runnable;
 import io.crm.util.ExceptionUtil;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import vaadincrm.Resp;
-import vaadincrm.exceptions.InvalidArgumentException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.vaadin.server.Sizeable.Unit.PIXELS;
@@ -41,11 +33,11 @@ final public class VaadinUtil {
         ExceptionUtil.logException(throwable);
     }
 
-    public static void showConfirmDialog(final String title, final Component dialogContent, final ConsumerInterface<Window> onClose) {
+    public static void showConfirmDialog(final String title, final Component dialogContent, final ConsumerUnchecked<Window> onClose) {
         showConfirmDialog(title, dialogContent, onClose, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT);
     }
 
-    public static void showConfirmDialog(final String title, final Component content, final ConsumerInterface<Window> onClose, final float width, final float height) {
+    public static void showConfirmDialog(final String title, final Component content, final ConsumerUnchecked<Window> onClose, final float width, final float height) {
         final Window window = new Window(title);
         window.setWidth(width, PIXELS);
         window.setHeight(height, PIXELS);
@@ -63,25 +55,25 @@ final public class VaadinUtil {
         UI.getCurrent().addWindow(window);
     }
 
-    public static void showYesNoDialog(final String title, final Component content, final ConsumerInterface<Boolean> onComplete) {
+    public static void showYesNoDialog(final String title, final Component content, final ConsumerUnchecked<Boolean> onComplete) {
         showOkCancelDialog(title, content, onComplete, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT, "Yes", "No");
     }
 
-    public static void showOkCancelDialog(final String title, final Component content, final ConsumerInterface<Boolean> onComplete) {
+    public static void showOkCancelDialog(final String title, final Component content, final ConsumerUnchecked<Boolean> onComplete) {
         showOkCancelDialog(title, content, onComplete, DEFAULT_DIALOG_WINDOW_WIDTH, DEFAULT_DIALOG_WINDOW_HEIGHT, "Ok", "Cancel");
     }
 
-    public static void showYesNoDialog(final String title, final Component content, final ConsumerInterface<Boolean> onComplete,
+    public static void showYesNoDialog(final String title, final Component content, final ConsumerUnchecked<Boolean> onComplete,
                                        final float width, final float height) {
         showOkCancelDialog(title, content, onComplete, width, height, "Yes", "No");
     }
 
-    public static void showOkCancelDialog(final String title, final Component content, final ConsumerInterface<Boolean> onComplete,
+    public static void showOkCancelDialog(final String title, final Component content, final ConsumerUnchecked<Boolean> onComplete,
                                           final float width, final float height) {
         showOkCancelDialog(title, content, onComplete, width, height, "Ok", "Cancel");
     }
 
-    public static void showOkCancelDialog(final String title, final Component content, final ConsumerInterface<Boolean> anInterface,
+    public static void showOkCancelDialog(final String title, final Component content, final ConsumerUnchecked<Boolean> anInterface,
                                           final float width, final float height, final String okButtonText, final String cancelButtonText) {
         final Window window = new Window(title);
         window.setWidth(width, PIXELS);
@@ -100,7 +92,7 @@ final public class VaadinUtil {
         UI.getCurrent().addWindow(window);
     }
 
-    private static Component okFooter(final Window window, final ConsumerInterface<Window> onClose) {
+    private static Component okFooter(final Window window, final ConsumerUnchecked<Window> onClose) {
         HorizontalLayout footer = new HorizontalLayout();
         footer.setWidth("100%");
         footer.setSpacing(true);
@@ -124,7 +116,7 @@ final public class VaadinUtil {
         return footer;
     }
 
-    public static Component okCancelFooter(final String okButtonText, final String cancelButtonText, final ConsumerInterface<Boolean> onComplete) {
+    public static Component okCancelFooter(final String okButtonText, final String cancelButtonText, final ConsumerUnchecked<Boolean> onComplete) {
         HorizontalLayout footer = new HorizontalLayout();
         footer.setWidth("100%");
         footer.setSpacing(true);
