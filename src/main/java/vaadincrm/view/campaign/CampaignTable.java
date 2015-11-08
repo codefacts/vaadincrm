@@ -6,7 +6,7 @@ import fluentui.FluentFormLayout;
 import io.crm.Events;
 import io.crm.FailureCode;
 import io.crm.QC;
-import io.crm.util.Touple1;
+import io.crm.util.touple.MutableTpl1;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -182,9 +182,9 @@ final public class CampaignTable {
         final LinkedHashMap<String, Field> map = new LinkedHashMap<>();
         final MapBuilder<String, Field> mapBuilder = new MapBuilder<>(map);
 
-        final Touple1<PopupWindow> touple1 = new Touple1<>();
+        final MutableTpl1<PopupWindow> mutableTpl1 = new MutableTpl1<>();
 
-        final PopupWindow popupWindow = touple1.t1 = PopupWindowBuilder.create("Create Campaign")
+        final PopupWindow popupWindow = mutableTpl1.t1 = PopupWindowBuilder.create("Create Campaign")
                 .height(600, PIXELS)
                 .content(new PopupWindowBuilder.ContentBuilder()
                         .addContent(FluentFormLayout.formLayout()
@@ -223,13 +223,13 @@ final public class CampaignTable {
                         .footer(new PopupWindowBuilder.ContentBuilder.FooterBuilder("")
                                 .okButton(NEXT,
                                         e -> {
-                                            touple1.t1.getContent().removeAllComponents();
+                                            mutableTpl1.t1.getContent().removeAllComponents();
                                             configureTree = new ConfigureCampaignTree();
                                             final TreeTable treeTable = configureTree.init();
                                             treeTable.setWidth("100%");
-                                            touple1.t1.getContent().addComponent(treeTable);
+                                            mutableTpl1.t1.getContent().addComponent(treeTable);
                                             configureTree.populateData(QueryService.getService().getDBTreeWithUsers());
-                                            touple1.t1.getFooter().removeComponent(touple1.t1.getOkButton());
+                                            mutableTpl1.t1.getFooter().removeComponent(mutableTpl1.t1.getOkButton());
 
 
                                         })
@@ -250,7 +250,7 @@ final public class CampaignTable {
                                                         handleError(r.cause());
                                                         return;
                                                     }
-                                                    touple1.t1.getWindow().close();
+                                                    mutableTpl1.t1.getWindow().close();
                                                     Notification.show("Campaign created successfully.", TRAY_NOTIFICATION);
                                                 });
                                             });

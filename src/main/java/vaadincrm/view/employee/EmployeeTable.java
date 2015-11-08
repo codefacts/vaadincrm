@@ -8,8 +8,8 @@ import io.crm.Events;
 import io.crm.FailureCode;
 import io.crm.QC;
 import io.crm.util.SimpleCounter;
-import io.crm.util.Touple1;
-import io.crm.util.Touple2;
+import io.crm.util.touple.MutableTpl1;
+import io.crm.util.touple.MutableTpl2;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -251,16 +251,16 @@ final public class EmployeeTable {
         final Button prevButton = new Button("Previous");
         prevButton.addStyleName("primary");
 
-        final Touple2<FormLayout, Map<String, Field>> userBasicForm = userBasicForm();
+        final MutableTpl2<FormLayout, Map<String, Field>> userBasicForm = userBasicForm();
 
-        final Touple1<PopupWindow> touple1 = new Touple1<>();
-        final PopupWindow popupWindow = touple1.t1 = PopupWindowBuilder.create("Create User")
+        final MutableTpl1<PopupWindow> mutableTpl1 = new MutableTpl1<>();
+        final PopupWindow popupWindow = mutableTpl1.t1 = PopupWindowBuilder.create("Create User")
                 .height(600, PIXELS)
                 .content(new ContentBuilder()
                         .addContent(userBasicForm.t1)
                         .footer(new FooterBuilder("")
                                 .okButton(okButtonText(userTypeId), e -> {
-                                    final PopupWindow pw = touple1.t1;
+                                    final PopupWindow pw = mutableTpl1.t1;
                                     final Map<String, Field> fieldMap = userBasicForm.t2;
 
                                     if (pw.getOkButton().getCaption().equals(CREATE)) {
@@ -275,10 +275,10 @@ final public class EmployeeTable {
                                         return;
                                     }
 
-                                    final VerticalLayout content = touple1.t1.getContent();
-                                    final Window window = touple1.t1.getWindow();
+                                    final VerticalLayout content = mutableTpl1.t1.getContent();
+                                    final Window window = mutableTpl1.t1.getWindow();
                                     content.removeAllComponents();
-                                    touple1.t1.getOkButton().setCaption(CREATE);
+                                    mutableTpl1.t1.getOkButton().setCaption(CREATE);
 
                                     if (userTypeId == EmployeeType.areaCoordinator.id) {
                                         content.addComponent(createACForm(fieldMap));
@@ -496,7 +496,7 @@ final public class EmployeeTable {
                 || userTypeId == EmployeeType.br.id ? NEXT : CREATE;
     }
 
-    private Touple2<FormLayout, Map<String, Field>> userBasicForm() {
+    private MutableTpl2<FormLayout, Map<String, Field>> userBasicForm() {
 
         final Map<String, Field> map = new LinkedHashMap<>();
 
@@ -551,7 +551,7 @@ final public class EmployeeTable {
                 )
                 .get();
 
-        return new Touple2<>(root, map);
+        return new MutableTpl2<>(root, map);
     }
 
     private Handler<AsyncResult<Message<Object>>> respond(final UI ui, final Window window, final TextField nameField, String successMessage) {
