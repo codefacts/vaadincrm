@@ -9,7 +9,6 @@ import io.crm.FailureCode;
 import io.crm.QC;
 import io.crm.util.SimpleCounter;
 import io.crm.util.touple.MutableTpl1;
-import io.crm.util.touple.MutableTpl2;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
