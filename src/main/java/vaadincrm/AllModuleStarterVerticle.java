@@ -2,7 +2,6 @@ package vaadincrm;
 
 import io.crm.util.TaskCoordinator;
 import io.crm.util.TaskCoordinatorBuilder;
-import io.crm.web.MainVerticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 
